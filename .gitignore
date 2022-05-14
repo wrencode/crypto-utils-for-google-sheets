@@ -1,3 +1,15 @@
+# macOS
+.DS_Store
+
+# JetBrains
+.idea/
+
+# Google
+creds.json
+
+# Command Line Apps Script Projects (CLASP)
+.clasprc.json
+
 # Logs
 logs
 *.log
