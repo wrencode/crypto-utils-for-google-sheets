@@ -1,0 +1,9 @@
+.env
+.env.example
+.gitignore
+.nvmrc
+creds.json
+package.json
+package-lock.json
+README.md
+**/node_modules/**

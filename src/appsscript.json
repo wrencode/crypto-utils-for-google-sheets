@@ -1,0 +1,56 @@
+{
+  "timeZone": "America/New_York",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "executionApi": {
+    "access": "ANYONE"
+  },
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.locale",
+    "https://www.googleapis.com/auth/script.scriptapp"
+  ],
+  "urlFetchWhitelist": [
+    "https://min-api.cryptocompare.com/",
+    "https://api.coingecko.com/api/v3/",
+    "https://http-api.livecoinwatch.com/",
+    "https://pricing.a.exodus.io/",
+    "https://stomarket.com/sto/",
+    "https://crypto.com/price/coin-data/",
+    "https://pro-api.coinmarketcap.com/v1/",
+    "https://algoexplorerapi.io/v1/",
+    "https://api.binance.us/api/v3/",
+    "https://api.binance.com/api/v3/",
+    "https://api.kucoin.com/api/v1",
+    "https://openapi-v2.kucoin.com/api/v1",
+    "https://api.kraken.com/",
+    "https://api.bittrex.com/v3/",
+    "https://api.coinbase.com/v2/",
+    "https://api.pro.coinbase.com/",
+    "https://api.gemini.com/v1/",
+    "https://api.coinex.com/v1/",
+    "https://gateway-web-markets.tzero.com/",
+    "https://www.mexc.com/open/api/v2/",
+    "https://api.etherscan.io/",
+    "https://sentinel.matic.network/api/v2/",
+    "https://neoscan.io/api/main_net/v1/",
+    "https://explorer-api.iota.org/",
+    "https://thetangle.org/api/",
+    "https://api.nanocrawler.cc/v2/",
+    "https://nanolooker.com/api/",
+    "https://api.creeper.banano.cc/v2/",
+    "https://api.bananode.eu/v2/",
+    "https://explorer.ark.io/api/",
+    "https://blockstream.info/api/",
+    "https://api-binance-mainnet.cosmostation.io/v1/",
+    "https://api.bscscan.com/",
+    "https://algoexplorerapi.io/v2/",
+    "https://api.algoexplorer.io/v2/",
+    "https://app.yieldly.finance/",
+    "https://indexer.algoexplorerapi.io/v2/",
+    "https://xmrchain.net/api/"
+  ]
+}

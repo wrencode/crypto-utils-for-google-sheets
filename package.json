@@ -1,5 +1,8 @@
 {
+  "type": "module",
   "dependencies": {
-    "@google/clasp": "^2.4.1"
+    "@google/clasp": "^2.4.1",
+    "@types/google-apps-script": "^1.0.47",
+    "dotenv": "^16.0.1"
   }
 }
