@@ -916,4 +916,4 @@ function fetchMexcBalance(apiKey: string, apiSecret: string) {
   }
 }
 
-// export {CRYPTO_EXCHANGE_BALANCE, CRYPTO_EXCHANGES}
+export {CRYPTO_EXCHANGE_BALANCE, CRYPTO_EXCHANGES}

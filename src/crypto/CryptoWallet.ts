@@ -1263,4 +1263,4 @@ function fetchMoneroBalance(transactions: string) {
   return totalAmount
 }
 
-// export {CRYPTO_WALLET_TICKERS, CRYPTO_WALLET_BALANCE}
+export {CRYPTO_WALLET_TICKERS, CRYPTO_WALLET_BALANCE}
