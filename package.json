@@ -1,8 +1,10 @@
 {
   "type": "module",
   "dependencies": {
+  },
+  "devDependencies": {
     "@google/clasp": "^2.4.1",
     "@types/google-apps-script": "^1.0.47",
-    "dotenv": "^16.0.1"
+    "ts-node": "^10.7.0"
   }
 }

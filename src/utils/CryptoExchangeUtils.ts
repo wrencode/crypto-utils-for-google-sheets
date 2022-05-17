@@ -1,12 +1,15 @@
+// noinspection JSUnusedGlobalSymbols
 /**
  * Parses multiple exchanges from comma-delimited string of exchanges.
  *
+ * @param {string} exchanges - Comma-separated string of exchange keywords.
+ *
  * @return {array} - An array of exchanges.
  */
-function utilParseExchanges(exchanges) {
-  exchanges = exchanges.split(",");
+function utilParseExchanges(exchanges: string) {
+  let exchangesArray = exchanges.split(",");
   let exchangeList = []
-  for (let exchange of exchanges) {
+  for (let exchange of exchangesArray) {
     if (exchange !== "") {
       exchangeList.push(exchange.replace(/\s/g, ''));
     }
@@ -14,21 +17,25 @@ function utilParseExchanges(exchanges) {
   return exchangeList;
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Converts a byte string to a hexadecimal string for use in cryptographic signatures.
  *
  * @param {string} strForConversion - A byte string to be converted to a hexadecimal string.
+ *
  * @return {string} - A hexadecimal string representation of the given byte string.
  */
-function utilConvertByteStrToHexStr(strForConversion) {
+function utilConvertByteStrToHexStr(strForConversion: string) {
   // noinspection JSUnresolvedFunction
+  // @ts-ignore
   return strForConversion.map(
-    function(byte) {
+    function(byte: any) {
       return ("0" + (byte & 0xFF).toString(16)).slice(-2);
     }
   ).join("");
 }
 
+// noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
  * Checks if the amount of a given cryptocurrency has a sufficient value to be displayed.
  *
@@ -37,7 +44,7 @@ function utilConvertByteStrToHexStr(strForConversion) {
  *
  * @return {boolean} - A boolean representing if the selected cryptocurrency has a sufficient amount to display.
  */
-function utilHasSufficientValue(ticker, amount) {
+function utilHasSufficientValue(ticker: string, amount: number) {
 
   ticker = ticker.toLowerCase();
   let sufficient = false;
@@ -58,4 +65,4 @@ function utilHasSufficientValue(ticker, amount) {
   return sufficient;
 }
 
-// export {utilParseExchanges, utilConvertByteStrToHexStr, utilHasSufficientValue}
+export {utilParseExchanges, utilConvertByteStrToHexStr, utilHasSufficientValue}

@@ -1,5 +1,6 @@
-// import { CRYPTO_PRICE, CRYPTO_PRICE_ON_DATE, CRYPTO_NAME, CRYPTO_TYPE } from "../crypto/CryptoInfo.js"
+// import { CRYPTO_PRICE, CRYPTO_PRICE_ON_DATE, CRYPTO_NAME, CRYPTO_TYPE } from "../crypto/CryptoInfo"
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Test CRYPTO_PRICE function.
  */
@@ -20,22 +21,24 @@ function testCryptoPrice() {
   let currencyOut = "USD"
   // let currencyOut = "ETH"
 
-  let apiKey;
+  let apiKey = "";
   try {
-    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY")
+    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY") || ""
   } catch (e) {
     if (e instanceof ReferenceError) {
-      apiKey = process.env.CRYPTOCOMPARE_API_KEY
+      apiKey = process.env.CRYPTOCOMPARE_API_KEY || ""
     }
   }
 
   // let timestamp = 1514851200
   // let timestamp = 1544745600
 
-  // CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true, timestamp)
+  // cryptoInfo.CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true, timestamp)
+  //@ts-ignore
   CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true)
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Test CRYPTO_PRICE_ON_DATE function.
  */
@@ -44,18 +47,20 @@ function testCryptoPriceOnDate() {
   let currencyOut = "USD"
   let timestamp = 1514764800
 
-  let apiKey;
+  let apiKey = "";
   try {
-    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY")
+    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY") || ""
   } catch (e) {
     if (e instanceof ReferenceError) {
-      apiKey = process.env.CRYPTOCOMPARE_API_KEY
+      apiKey = process.env.CRYPTOCOMPARE_API_KEY || ""
     }
   }
 
+  //@ts-ignore
   CRYPTO_PRICE_ON_DATE(currencyIn, currencyOut, timestamp, apiKey)
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Test CRYPTO_NAME function.
  */
@@ -68,19 +73,21 @@ function testCryptoName() {
   // let ticker = "YLDY"
   // let ticker = "DEFLY"
 
-  let apiKey;
+  let apiKey = "";
   try {
-    apiKey = PropertiesService.getScriptProperties().getProperty("LIVECOINWATCH_API_KEY")
+    apiKey = PropertiesService.getScriptProperties().getProperty("LIVECOINWATCH_API_KEY") || ""
   } catch (e) {
     if (e instanceof ReferenceError) {
-      apiKey = process.env.LIVECOINWATCH_API_KEY
+      apiKey = process.env.LIVECOINWATCH_API_KEY || ""
     }
   }
 
   console.log("Getting name for " + ticker)
+  //@ts-ignore
   CRYPTO_NAME(ticker, apiKey)
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Test CRYPTO_TYPE function.
  */
@@ -112,6 +119,7 @@ function testCryptoType() {
   // let ticker = "YLDY"
   // let ticker = "DEFLY"
 
+  //@ts-ignore
   CRYPTO_TYPE(ticker)
 }
 
