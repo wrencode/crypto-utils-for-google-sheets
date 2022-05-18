@@ -68,7 +68,7 @@
         "primaryColor": "#4a4139",
         "secondaryColor": "#aba18c"
       },
-      "logoUrl": "https://ethereum.org/static/a183661dd70e0e5c70689a0ec95ef0ba/81d9f/eth-diamond-purple.webp",
+      "logoUrl": "https://github.com/wrencode/crypto-utils-for-gas/blob/main/resources/images/crypto-utils-eth.png",
       "name": "Crypto Utils",
       "useLocaleFromApp": true,
       "homepageTrigger": {
