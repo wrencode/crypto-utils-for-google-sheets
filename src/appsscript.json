@@ -1,6 +1,13 @@
 {
   "timeZone": "America/New_York",
   "dependencies": {
+    "enabledAdvancedServices": [
+      {
+        "userSymbol": "Sheets",
+        "version": "v4",
+        "serviceId": "sheets"
+      }
+    ]
   },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8",
@@ -9,9 +16,11 @@
   },
   "oauthScopes": [
     "https://www.googleapis.com/auth/script.external_request",
-    "https://www.googleapis.com/auth/spreadsheets.currentonly",
     "https://www.googleapis.com/auth/script.locale",
-    "https://www.googleapis.com/auth/script.scriptapp"
+    "https://www.googleapis.com/auth/script.scriptapp",
+    "https://www.googleapis.com/auth/script.container.ui",
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/drive.file"
   ],
   "urlFetchWhitelist": [
     "https://min-api.cryptocompare.com/",
@@ -52,5 +61,28 @@
     "https://app.yieldly.finance/",
     "https://indexer.algoexplorerapi.io/v2/",
     "https://xmrchain.net/api/"
-  ]
+  ],
+  "addOns": {
+    "common": {
+      "layoutProperties": {
+        "primaryColor": "#4a4139",
+        "secondaryColor": "#aba18c"
+      },
+      "logoUrl": "https://ethereum.org/static/a183661dd70e0e5c70689a0ec95ef0ba/81d9f/eth-diamond-purple.webp",
+      "name": "Crypto Utils",
+      "useLocaleFromApp": true,
+      "homepageTrigger": {
+        "runFunction": "homepageSidebar",
+        "enabled": true
+      }
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "runFunction": "homepageSidebar"
+      },
+      "onFileScopeGrantedTrigger": {
+        "runFunction": "onFileScopeGrantedEditors"
+      }
+    }
+  }
 }
