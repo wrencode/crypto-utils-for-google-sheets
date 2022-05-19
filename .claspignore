@@ -7,4 +7,5 @@ creds.json
 package.json
 package-lock.json
 README.md
+**/resources/**
 **/node_modules/**

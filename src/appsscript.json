@@ -68,7 +68,7 @@
         "primaryColor": "#4a4139",
         "secondaryColor": "#aba18c"
       },
-      "logoUrl": "https://github.com/wrencode/crypto-utils-for-gas/blob/main/resources/images/crypto-utils-eth.png",
+      "logoUrl": "https://github.com/wrencode/crypto-utils-for-gas/blob/main/resources/images/crypto-utils-logo.png?raw=true",
       "name": "Crypto Utils",
       "useLocaleFromApp": true,
       "homepageTrigger": {

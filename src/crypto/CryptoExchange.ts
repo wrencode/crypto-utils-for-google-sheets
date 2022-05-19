@@ -2,7 +2,7 @@
 
 // import { utilParseExchanges, utilConvertByteStrToHexStr, utilHasSufficientValue } from "../utils/CryptoExchangeUtils"
 
-// noinspection JSValidateJSDoc
+// noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
 /**
  * Retrieve cryptocurrency exchange balance(s) for chosen asset.
  *

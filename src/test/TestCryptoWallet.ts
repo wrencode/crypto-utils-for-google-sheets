@@ -5,6 +5,7 @@
  * Test CRYPTO_WALLET_TICKERS function.
  */
 function testCryptoWalletTickers() {
+  // @ts-ignore
   CRYPTO_WALLET_TICKERS(true)
 }
 
@@ -163,6 +164,7 @@ function testCryptoWalletBalance() {
   //   }
   // }
 
+  // @ts-ignore
   CRYPTO_WALLET_BALANCE(cryptocurrency, walletAddresses, apiKey)
 }
 

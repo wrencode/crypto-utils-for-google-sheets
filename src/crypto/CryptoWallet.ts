@@ -2,7 +2,7 @@
 
 // import {utilParseCryptoAddresses, utilCleanAddress, utilGetResponseJsonFromRequest, utilGetCryptoAmountFromApi} from "../utils/CryptoWalletUtils"
 
-// noinspection JSUnusedLocalSymbols,JSValidateJSDoc
+// noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
 /**
  * All supported cryptocurrencies of CRYPTO_WALLET_BALANCE.
  *
@@ -18,7 +18,7 @@ function CRYPTO_WALLET_TICKERS(doRefresh = true) {
   return tickerArray.sort()
 }
 
-// noinspection JSUnusedLocalSymbols,JSValidateJSDoc
+// noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
 /**
  * Retrieve cryptocurrency wallet balance(s) for chosen asset.
  *
