@@ -8,15 +8,15 @@ function testCryptoPrice() {
   let currencyIn = "ETH"
   // let currencyIn = "NANO"
   // let currencyIn = "BAN"
-  // var currencyIn = "MCT"
-  // var currencyIn = "TKY"
-  // var currencyIn = "DBC"
-  // var currencyIn = "MATIC"
-  // var currencyIn = "EXIT"
-  // var currencyIn = "YLDY"
-  // var currencyIn = "TZROP"
-  // var currencyIn = "YLDY"
-  // var currencyIn = "DEFLY"
+  // let currencyIn = "MCT"
+  // let currencyIn = "TKY"
+  // let currencyIn = "DBC"
+  // let currencyIn = "MATIC"
+  // let currencyIn = "EXIT"
+  // let currencyIn = "YLDY"
+  // let currencyIn = "TZROP"
+  // let currencyIn = "YLDY"
+  // let currencyIn = "DEFLY"
 
   let currencyOut = "USD"
   // let currencyOut = "ETH"
@@ -35,7 +35,7 @@ function testCryptoPrice() {
 
   // cryptoInfo.CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true, timestamp)
   //@ts-ignore
-  CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true)
+  CRYPTO_PRICE(currencyIn, currencyOut, apiKey)
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -57,7 +57,7 @@ function testCryptoPriceOnDate() {
   }
 
   //@ts-ignore
-  CRYPTO_PRICE_ON_DATE(currencyIn, currencyOut, timestamp, apiKey)
+  CRYPTO_PRICE_ON_DATE(currencyIn, currencyOut, apiKey, timestamp)
 }
 
 // noinspection JSUnusedGlobalSymbols

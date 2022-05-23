@@ -2,26 +2,26 @@
 
 // noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
- * Fetches the current price of a chosen cryptocurrency.
+ * Retrieve current price of the selected cryptocurrency.
  *
- * @param {string} currencyIn - Ticker of cryptocurrency converting FROM.
- * @param {string} currencyOut - Ticker of cryptocurrency converting TO.
- * @param {string} apiKey - API key for cryptocompare.com.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
- * @param {number} timestamp - Timestamp for selected date.
+ * @param {string} currencyTickerIn - Ticker of input cryptocurrency for which the price is to be retrieved.
+ * @param {string} currencyTickerOut - Ticker of output cryptocurrency/fiat currency in which to represent the price of the input cryptocurrency.
+ * @param {string} apiKey - Personal API key for CryptoCompare.com.
+ * @param {number} timestamp - The UNIX timestamp of the desired date for which to retrieve the price of the input cryptocurrency.
+ * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
- * @return {string} The value of the specified cryptocurrency in the specified output currency.
+ * @return {string} The value of the input cryptocurrency in the output cryptocurrency/fiat currency.
  *
  * @customfunction
  */
-function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, doRefresh = true, timestamp = 0) {
+function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKey: string, timestamp = 0, doRefresh = true) {
 
-  if (currencyIn === "IOTA") {
-    currencyIn = "MIOTA"
+  if (currencyTickerIn === "IOTA") {
+    currencyTickerIn = "MIOTA"
   }
 
-  currencyIn = currencyIn.toLowerCase()
-  currencyOut = currencyOut.toLowerCase()
+  currencyTickerIn = currencyTickerIn.toLowerCase()
+  currencyTickerOut = currencyTickerOut.toLowerCase()
 
   const cryptocompareAppName = "cryptoTrackerSpreadsheet"
 
@@ -36,13 +36,13 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
   let response
   let responseContent
   let responseJson
-  if (!Object.keys(edgeCaseCryptoMap).includes(currencyIn)) {
+  if (!Object.keys(edgeCaseCryptoMap).includes(currencyTickerIn)) {
     if (timestamp > 0) {
-      currencyOutValue = CRYPTO_PRICE_ON_DATE(currencyIn, currencyOut, timestamp, apiKey, doRefresh)
+      currencyOutValue = CRYPTO_PRICE_ON_DATE(currencyTickerIn, currencyTickerOut, apiKey, timestamp, doRefresh)
     } else {
       // example url: https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD"
       url = "https://min-api.cryptocompare.com/data/price?fsym=" +
-        currencyIn + "&tsyms=" + currencyOut + "&apiKey=" + apiKey + "&extraParams=" + cryptocompareAppName
+        currencyTickerIn + "&tsyms=" + currencyTickerOut + "&apiKey=" + apiKey + "&extraParams=" + cryptocompareAppName
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
       // console.log(response)
@@ -51,13 +51,13 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
       responseJson = JSON.parse(responseContent)
       // console.log(responseJson)
 
-      currencyOutValue = responseJson[currencyOut.toUpperCase()]
+      currencyOutValue = responseJson[currencyTickerOut.toUpperCase()]
     }
 
     // console.log(currencyOutValue)
 
     if (!currencyOutValue && timestamp === 0) {
-      currencyOut = currencyOut.toLowerCase()
+      currencyTickerOut = currencyTickerOut.toLowerCase()
 
       let cryptoIdUrl
       let backupCryptoIdUrl
@@ -78,12 +78,12 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
 
         let cryptoId = ""
         for (let crypto of cryptoIdResponseJson) {
-          if (crypto.symbol.toLowerCase() === currencyIn.toLowerCase()) {
+          if (crypto.symbol.toLowerCase() === currencyTickerIn.toLowerCase()) {
             cryptoId = crypto.id
           }
         }
 
-        backupCryptoIdUrl = "https://api.coingecko.com/api/v3/simple/price?ids=" + cryptoId + "&vs_currencies=" + currencyOut
+        backupCryptoIdUrl = "https://api.coingecko.com/api/v3/simple/price?ids=" + cryptoId + "&vs_currencies=" + currencyTickerOut
         // console.log(backupCryptoIdUrl)
 
         cryptoIdResponse = UrlFetchApp.fetch(backupCryptoIdUrl, {"muteHttpExceptions": true})
@@ -93,15 +93,15 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
         cryptoIdResponseJson = JSON.parse(cryptoIdResponseContent)
         // console.log(cryptoIdResponseJson)
 
-        currencyOutValue = cryptoIdResponseJson[cryptoId][currencyOut]
+        currencyOutValue = cryptoIdResponseJson[cryptoId][currencyTickerOut]
       } catch (error) {
         let edgeCaseCryptoMap: { [key: string]: string } = {
           mct: "_mct",
         }
-        if (Object.keys(edgeCaseCryptoMap).includes(currencyIn)) {
-          currencyIn = edgeCaseCryptoMap[currencyIn]
+        if (Object.keys(edgeCaseCryptoMap).includes(currencyTickerIn)) {
+          currencyTickerIn = edgeCaseCryptoMap[currencyTickerIn]
         }
-        backupCryptoIdUrl = "https://http-api.livecoinwatch.com/coins/" + currencyIn.toUpperCase() + "/info?currency=USD"
+        backupCryptoIdUrl = "https://http-api.livecoinwatch.com/coins/" + currencyTickerIn.toUpperCase() + "/info?currency=USD"
         // console.log(backupCryptoIdUrl)
         cryptoIdResponse = UrlFetchApp.fetch(backupCryptoIdUrl, {"muteHttpExceptions": true})
         // console.log(cryptoIdResponse)
@@ -117,7 +117,7 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
       console.log(currencyOutValue)
     }
   } else {
-    if (currencyIn.toLowerCase() === "exit") {
+    if (currencyTickerIn.toLowerCase() === "exit") {
       url = "https://pricing.a.exodus.io/current-price?from=EXIT&to=USD"
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
@@ -130,16 +130,16 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
       currencyOutValue = responseJson["EXIT"]["USD"]
       console.log(currencyOutValue)
 
-      if (currencyOut.toLowerCase() === "eth") {
+      if (currencyTickerOut.toLowerCase() === "eth") {
 
         if (timestamp > 0) {
-          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyOut, timestamp, apiKey, doRefresh)
+          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
         } else {
           // @ts-ignore
-          currencyOutValue = utilGetCryptoValueFromUsd(currencyOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
+          currencyOutValue = utilGetCryptoValueFromUsd(currencyTickerOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
         }
       }
-    } else if (currencyIn.toLowerCase() === "tzrop") {
+    } else if (currencyTickerIn.toLowerCase() === "tzrop") {
       url = "https://stomarket.com/sto/tZERO"
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
@@ -152,16 +152,16 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
       currencyOutValue = Number(result![0].split(/[$ ]/)[1])
       console.log(currencyOutValue)
 
-      if (currencyOut.toLowerCase() === "eth") {
+      if (currencyTickerOut.toLowerCase() === "eth") {
         if (timestamp > 0) {
-          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyOut, timestamp, apiKey, doRefresh)
+          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
         } else {
           // @ts-ignore
-          currencyOutValue = utilGetCryptoValueFromUsd(currencyOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
+          currencyOutValue = utilGetCryptoValueFromUsd(currencyTickerOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
         }
       }
     } else {
-      url = "https://crypto.com/price/coin-data/" + edgeCaseCryptoMap[currencyIn.toLowerCase()] + "/1d/latest.json"
+      url = "https://crypto.com/price/coin-data/" + edgeCaseCryptoMap[currencyTickerIn.toLowerCase()] + "/1d/latest.json"
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
       // console.log(response)
@@ -177,7 +177,7 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
   }
 
   currencyOutValue = Number(currencyOutValue)
-  if (currencyOut.toLowerCase() === "usd") {
+  if (currencyTickerOut.toLowerCase() === "usd") {
     console.log(currencyOutValue.toFixed(2))
   } else {
     console.log(currencyOutValue.toPrecision())
@@ -187,25 +187,25 @@ function CRYPTO_PRICE(currencyIn: string, currencyOut: string, apiKey: string, d
 
 // noinspection JSValidateJSDoc
 /**
- * Fetches the average price of a chosen cryptocurrency on a specified date.
+ * Retrieve average price of the selected cryptocurrency on a specified date.
  *
- * @param {string} currencyIn - Ticker of cryptocurrency converting FROM.
- * @param {string} currencyOut - Ticker of cryptocurrency converting TO.
- * @param {number} timestamp - The UNIX timestamp of the desired date to fetch price for.
- * @param {string} apiKey - API key for cryptocompare.com.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {string} currencyTickerIn - Ticker of input cryptocurrency for which the price is to be retrieved.
+ * @param {string} currencyTickerOut - Ticker of output cryptocurrency/fiat currency in which to represent the price of the input cryptocurrency.
+ * @param {string} apiKey - Personal API key for CryptoCompare.com.
+ * @param {number} timestamp - The UNIX timestamp of the desired date for which to retrieve the price of the input cryptocurrency.
+ * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
- * @return {string} The value of the specified cryptocurrency in the specified output currency.
+ * @return {string} The value of the input cryptocurrency in the output cryptocurrency/fiat currency on the specified date.
  *
  * @customfunction
  */
-function CRYPTO_PRICE_ON_DATE(currencyIn: string, currencyOut: string, timestamp: number, apiKey: string, doRefresh = true) {
+function CRYPTO_PRICE_ON_DATE(currencyTickerIn: string, currencyTickerOut: string, apiKey: string, timestamp: number, doRefresh = true) {
 
   const appName = "cryptoTrackerSpreadsheet"
 
   // example url: "https://min-api.cryptocompare.com/data/pricehistorical?fsym=ETH&tsyms=USD&ts=1514764800&extraParams=app&calculationType=MidHighLow"
   const url = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=" +
-    currencyIn + "&tsyms=" + currencyOut + "&ts=" + timestamp + "&api_key=" + apiKey + "&extraParams=" + appName + "&calculationType=MidHighLow"
+    currencyTickerIn + "&tsyms=" + currencyTickerOut + "&ts=" + timestamp + "&api_key=" + apiKey + "&extraParams=" + appName + "&calculationType=MidHighLow"
   // console.log(url)
   const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
   // console.log(response)
@@ -214,11 +214,11 @@ function CRYPTO_PRICE_ON_DATE(currencyIn: string, currencyOut: string, timestamp
   const responseJson = JSON.parse(responseContent)
   // console.log(responseJson)
 
-  let currencyOutValue = responseJson[currencyIn.toUpperCase()][currencyOut.toUpperCase()]
+  let currencyOutValue = responseJson[currencyTickerIn.toUpperCase()][currencyTickerOut.toUpperCase()]
   // console.log(currencyOutValue)
 
   currencyOutValue = Number(currencyOutValue)
-  if (currencyOut.toLowerCase() === "usd") {
+  if (currencyTickerOut.toLowerCase() === "usd") {
     console.log(currencyOutValue.toFixed(2))
   } else {
     console.log(currencyOutValue.toPrecision())
@@ -228,19 +228,18 @@ function CRYPTO_PRICE_ON_DATE(currencyIn: string, currencyOut: string, timestamp
 
 // noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
- * Fetches full name of the chosen cryptocurrency ticker.
+ * Retrieve full name of the selected cryptocurrency ticker.
  *
- * @param {string} ticker - The cryptocurrency ticker for the chosen cryptocurrency.
- * @param {string} apiKey - API key for coinmarketcap.com.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {string} cryptocurrencyTicker - Ticker of input cryptocurrency for which to retrieve the full name.
+ * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
- * @return {string} The full name of the specified cryptocurrency.
+ * @return {string} The full name of the selected cryptocurrency ticker.
  *
  * @customfunction
  */
-function CRYPTO_NAME(ticker: string, apiKey = "", doRefresh = true) {
+function CRYPTO_NAME(cryptocurrencyTicker: string, doRefresh = true) {
 
-  ticker = ticker.toLowerCase()
+  cryptocurrencyTicker = cryptocurrencyTicker.toLowerCase()
   let edgeCaseCryptoMap: { [key: string]: string } = {
     iota: "miota",
     mct: "_mct",
@@ -248,11 +247,11 @@ function CRYPTO_NAME(ticker: string, apiKey = "", doRefresh = true) {
     tzrop: "tzero-shares",
   }
 
-  if (ticker in edgeCaseCryptoMap) {
-    ticker = edgeCaseCryptoMap[ticker]
+  if (cryptocurrencyTicker in edgeCaseCryptoMap) {
+    cryptocurrencyTicker = edgeCaseCryptoMap[cryptocurrencyTicker]
   }
 
-  let url = "https://http-api.livecoinwatch.com/coins/" + ticker.toUpperCase() + "/info?currency=USD"
+  let url = "https://http-api.livecoinwatch.com/coins/" + cryptocurrencyTicker.toUpperCase() + "/info?currency=USD"
   // let url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol=" + ticker.toLowerCase()
   // const params = {
   //   'method': 'get',
@@ -266,7 +265,7 @@ function CRYPTO_NAME(ticker: string, apiKey = "", doRefresh = true) {
   let response
   let responseContent
   let responseJson
-  if (ticker === "exodus-shares") {
+  if (cryptocurrencyTicker === "exodus-shares") {
     url = "https://algoexplorerapi.io/v1/asset/213345970/info"
     // console.log(url)
     response = UrlFetchApp.fetch(url)
@@ -278,7 +277,7 @@ function CRYPTO_NAME(ticker: string, apiKey = "", doRefresh = true) {
 
     // noinspection JSUnresolvedVariable
     name = responseJson.assetName
-  } else if (ticker === "tzero-shares") {
+  } else if (cryptocurrencyTicker === "tzero-shares") {
     name = "tZERO"
   } else {
     response = UrlFetchApp.fetch(url)
@@ -305,18 +304,18 @@ function CRYPTO_NAME(ticker: string, apiKey = "", doRefresh = true) {
 
 // noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
- * Fetches summarized type of the chosen cryptocurrency ticker.
+ * Retrieve summarized type of the selected cryptocurrency ticker (where available).
  *
- * @param {string} ticker - The cryptocurrency ticker for the chosen cryptocurrency.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {string} cryptocurrencyTicker - Ticker of input cryptocurrency for which to retrieve the summarized type.
+ * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
- * @return {string} The summarized type of the specified cryptocurrency, including type, consensus mechanism, and platform where applicable.
+ * @return {string} The summarized type, consensus mechanism, and platform (where applicable and available) of the selected cryptocurrency ticker.
  *
  * @customfunction
  */
-function CRYPTO_TYPE(ticker: string, doRefresh: boolean = true) {
+function CRYPTO_TYPE(cryptocurrencyTicker: string, doRefresh: boolean = true) {
 
-  ticker = ticker.toLowerCase()
+  cryptocurrencyTicker = cryptocurrencyTicker.toLowerCase()
   let edgeCaseCryptoTypesMap: { [key: string]: string } = {
     exit: "Security Token",
     tzrop: "Security Token",
@@ -324,15 +323,15 @@ function CRYPTO_TYPE(ticker: string, doRefresh: boolean = true) {
     ban: "ORV Coin",
   }
 
-  if (ticker === "iota") {
-    ticker = "miota"
+  if (cryptocurrencyTicker === "iota") {
+    cryptocurrencyTicker = "miota"
   }
 
   let type
-  if (ticker in edgeCaseCryptoTypesMap) {
-    type = edgeCaseCryptoTypesMap[ticker]
+  if (cryptocurrencyTicker in edgeCaseCryptoTypesMap) {
+    type = edgeCaseCryptoTypesMap[cryptocurrencyTicker]
   } else {
-    const url = "https://http-api.livecoinwatch.com/coins/" + ticker.toUpperCase() + "/info?currency=USD"
+    const url = "https://http-api.livecoinwatch.com/coins/" + cryptocurrencyTicker.toUpperCase() + "/info?currency=USD"
     // console.log(url)
     const response = UrlFetchApp.fetch(url)
     // console.log(response)

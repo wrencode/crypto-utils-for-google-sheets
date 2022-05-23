@@ -4,11 +4,11 @@
 
 // noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
 /**
- * All supported cryptocurrencies of CRYPTO_WALLET_BALANCE.
+ * Retrieve all supported cryptocurrencies of the CRYPTO_WALLET_BALANCE custom function.
  *
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {boolean} doRefresh - Variable used to refresh function (can be any value that changes).
  *
- * @return {array} - An array of all supported cryptocurrency tickers supported by CRYPTO_WALLET_BALANCE.
+ * @return {array} - An array of all cryptocurrency tickers supported by the CRYPTO_WALLET_BALANCE custom function.
  *
  * @customfunction
  */
@@ -20,18 +20,18 @@ function CRYPTO_WALLET_TICKERS(doRefresh = true) {
 
 // noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
 /**
- * Retrieve cryptocurrency wallet balance(s) for chosen asset.
+ * Retrieve wallet balance(s) of the selected cryptocurrency asset.
  *
- * @param {string} cryptocurrency - The ticker for the selected cryptocurrency.
- * @param {string} walletAddresses - Comma-separated list of public wallet addresses as string.
- * @param {string} apiKey - Personal etherscan.io API key for use with ETH and ERC20 assets.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {string} cryptocurrencyTicker - Ticker of the selected cryptocurrency for which to retrieve wallet balance(s).
+ * @param {string} walletAddresses - Comma-separated list of public wallet addresses as string (Ex.: "address1,address2").
+ * @param {string} apiKey - Personal API key for Etherscan.io or for BscScan.com (depending on selected cryptocurrency).
+ * @param {boolean} doRefresh - Variable used to refresh function (can be any value that changes).
  *
- * @return {float} - The total amount of the cryptocurrency stored in the wallet.
+ * @return {float} - The total amount (sum of wallet balance(s)) of the selected cryptocurrency.
  *
  * @customfunction
  */
-function CRYPTO_WALLET_BALANCE(cryptocurrency: string, walletAddresses: string, apiKey: string, doRefresh = true) {
+function CRYPTO_WALLET_BALANCE(cryptocurrencyTicker: string, walletAddresses: string, apiKey: string, doRefresh = true) {
 
   // @ts-ignore
   walletAddresses = utilParseCryptoAddresses(walletAddresses).filter(Boolean)
@@ -39,22 +39,22 @@ function CRYPTO_WALLET_BALANCE(cryptocurrency: string, walletAddresses: string, 
 
   const cryptoAssets = getCryptoWalletAssets() as {[key: string]: Array<Function>}
 
-  cryptocurrency = cryptocurrency.toUpperCase()
+  cryptocurrencyTicker = cryptocurrencyTicker.toUpperCase()
   const randomDelay = Math.floor(Math.random() * 1000)
   Utilities.sleep(randomDelay)
 
   let amount
-  if (cryptoAssets.hasOwnProperty(cryptocurrency)) {
+  if (cryptoAssets.hasOwnProperty(cryptocurrencyTicker)) {
     // amount = cryptoAssets[cryptocurrency](walletAddresses, apiKey)
-    amount = cryptoAssets[cryptocurrency].reduce((prevFunc, currFunc) => {
+    amount = cryptoAssets[cryptocurrencyTicker].reduce((prevFunc, currFunc) => {
       return () => {
         return prevFunc(walletAddresses, apiKey) + currFunc(walletAddresses, apiKey)
       }
     }, () => 0)()
 
-    console.log(`Total amount of ${cryptocurrency.toUpperCase()}: ${amount.toPrecision()}`)
+    console.log(`Total amount of ${cryptocurrencyTicker.toUpperCase()}: ${amount.toPrecision()}`)
   } else {
-    throw "Cryptocurrency " + cryptocurrency + " is not yet supported! " +
+    throw "Cryptocurrency " + cryptocurrencyTicker + " is not yet supported! " +
     "Call CRYPTO_WALLET_TICKERS to get an array of currently supported cryptocurrencies. " +
     "Please contact dev@wrencode.com to request support for additional crypto assets."
   }
@@ -64,7 +64,7 @@ function CRYPTO_WALLET_BALANCE(cryptocurrency: string, walletAddresses: string, 
   } else {
     // RETURN for testing only
     // return amount
-    throw "Retrieval of cryptocurrency " + cryptocurrency + " failed. " +
+    throw "Retrieval of cryptocurrency " + cryptocurrencyTicker + " failed. " +
     "It is possible that there was a problem with the API used for this asset. " +
     "Please contact dev@wrencode.com to report this issue."
   }
@@ -126,7 +126,7 @@ function getCryptoWalletAssets() {
  * Fetches balance(s) of public ETH wallet(s).
  *
  * @param {string} addresses - Comma-separated list of public wallet addresses as string.
- * @param {string} apiKey - Personal etherscan.io API key.
+ * @param {string} apiKey - Personal API key for Etherscan.io.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
@@ -171,7 +171,7 @@ function fetchEthereumPlatformBalance(contractAddress: string, denominator: numb
    * Fetches balance(s) of public ERC20 wallet(s).
    *
    * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
-   * @param {string} apiKey - Personal etherscan.io API key.
+   * @param {string} apiKey - Personal API key for Etherscan.io.
    *
    * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
    */
@@ -230,7 +230,7 @@ function fetchEthereumPlatformStakingBalance(contractAddress: string, denominato
    * Fetches balance(s) of stakeable ERC20 tokens from both public wallet address(es) and staking contracts.
    *
    * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
-   * @param {string} apiKey - Personal etherscan.io API key.
+   * @param {string} apiKey - Personal API key for Etherscan.io.
    *
    * @return {number} The total amount of the cryptocurrency stored in the wallet(s) and/or staking contract.
    */
@@ -440,7 +440,7 @@ function fetchNanoBalance(addresses: string) {
     // @ts-ignore
     const responseJson = utilFetchJsonFromApi(url, {"muteHttpExceptions": true})
 
-    var amount = parseInt(responseJson.account.balance) / 1000000000000000000000000000000
+    const amount = parseInt(responseJson.account.balance) / 1000000000000000000000000000000
     */
     ///*
 
@@ -582,7 +582,7 @@ function fetchBitcoinBalance(addresses: string) {
  * Fetches balance(s) of public Binance Coin (BNB) wallet(s).
  *
  * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
- * @param {string} apiKey - Personal bscscan API key.
+ * @param {string} apiKey - Personal API key for BscScan.com.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
@@ -616,12 +616,12 @@ function fetchBinanceCoinBalance(addresses: string, apiKey: string) {
       // @ts-ignore
       let amount = utilGetCryptoAmountFromApi(url, address, "result", 1000000000000000000)
 
-      // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-      // // console.log(response)
-      // var jsonObj = JSON.parse(response)
-      // // console.log(jsonObj)
+      // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+      // const responseContent = response.getContentText()
+      // const responseJson = JSON.parse(responseContent)
+      // // console.log(responseJson)
       //
-      // var amount = parseFloat(jsonObj.result) / 1000000000000000000
+      // const amount = parseFloat(jsonObj.result) / 1000000000000000000
 
       console.log("Amount: " + amount)
       totalAmount += amount
@@ -646,9 +646,10 @@ function fetchAlgorandBalance(addresses: string) {
     address = addressInfo["address"]
 
     const url = "https://algoexplorerapi.io/v2/accounts/" + address
-    // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-    // var jsonObj = JSON.parse(response)
-    // // console.log(jsonObj)
+    // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+    // const responseContent = response.getContentText()
+    // const responseJson = JSON.parse(responseContent)
+    // // console.log(responseJson)
 
     // @ts-ignore
     const responseJson = utilGetResponseJsonFromRequest(url)
@@ -700,10 +701,10 @@ function fetchAlgorandPlatformBalance(tokenId: string, denominator: number) {
       address = addressInfo["address"]
 
       const url = "https://algoexplorerapi.io/v2/accounts/" + address
-      // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-      // // console.log(response)
-      // var jsonObj = JSON.parse(response)
-      // // console.log(jsonObj)
+      // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+      // const responseContent = response.getContentText()
+      // const responseJson = JSON.parse(responseContent)
+      // // console.log(responseJson)
 
       // @ts-ignore
       const responseJson = utilGetResponseJsonFromRequest(url)
@@ -762,10 +763,10 @@ function fetchAlgorandPlatformYieldlyLotteryStakingBalance(appId: string, denomi
 
       if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
         const url = "https://api.algoexplorer.io/v2/accounts/"+ address
-        // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-        // // console.log(response)
-        // var jsonObj = JSON.parse(response)
-        // // console.log(jsonObj)
+        // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+        // const responseContent = response.getContentText()
+        // const responseJson = JSON.parse(responseContent)
+        // // console.log(responseJson)
 
         // @ts-ignore
         const responseJson = utilGetResponseJsonFromRequest(url)
@@ -813,10 +814,10 @@ function fetchAlgorandPlatformYieldlyLotteryStakingBalance(appId: string, denomi
           let appKeyGTglobalTime = 0
           if (assetId === "226701642") {
             const appUrl = "https://api.algoexplorer.io/v2/applications/" + appId
-            // var appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true}).getContentText()
-            // // console.log(appResponse)
-            // var appJsonObj = JSON.parse(appResponse)
-            // // console.log(appJsonObj)
+            // const appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true})
+            // const appResponseContent = appResponse.getContentText()
+            // const appResponseJson = JSON.parse(appResponseContent)
+            // // console.log(appResponseJson)
 
             // @ts-ignore
             const appResponseJson = utilGetResponseJsonFromRequest(appUrl)
@@ -895,10 +896,10 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
   return function(addresses: string) {
 
     const urlStakingPools = "https://app.yieldly.finance/staking/pools"
-    // var responseStakingPools = UrlFetchApp.fetch(urlStakingPools, {"muteHttpExceptions": true}).getContentText()
-    // // console.log(responseStakingPools)
-    // var jsonObjStakingPools = JSON.parse(responseStakingPools)
-    // // utilPrettyPrintJson(jsonObjStakingPools)
+    // const stakingPoolsResponse = UrlFetchApp.fetch(urlStakingPools, {"muteHttpExceptions": true})
+    // const stakingPoolsResponseContent.getContentText()
+    // const stakingPoolsResponseJson = JSON.parse(stakingPoolsResponseContent)
+    // // utilPrettyPrintJson(stakingPoolsResponseJson)
 
     // @ts-ignore
     const stakingPoolsResponseJson = utilGetResponseJsonFromRequest(urlStakingPools)
@@ -911,10 +912,10 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
 
       if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
         const url = "https://api.algoexplorer.io/v2/accounts/"+ address
-        // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-        // // console.log(response)
-        // var jsonObj = JSON.parse(response)
-        // // console.log(jsonObj)
+        // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+        // const responseContent = response.getContentText()
+        // const responseJson = JSON.parse(responseContent)
+        // // console.log(responseJson)
 
         // @ts-ignore
         const responseJson = utilGetResponseJsonFromRequest(url)
@@ -972,10 +973,10 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
                 }
 
                 const appUrl = "https://api.algoexplorer.io/v2/applications/" + appId
-                // var appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true}).getContentText()
-                // // console.log(appResponse)
-                // var appJsonObj = JSON.parse(appResponse)
-                // // utilPrettyPrintJson(appJsonObj)
+                // const appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true})
+                // const appResponseContent = appResponse.getContentText()
+                // const appResponseJson = JSON.parse(appResponseContent)
+                // // utilPrettyPrintJson(appResponseJson)
 
                 // @ts-ignore
                 const appResponseJson = utilGetResponseJsonFromRequest(appUrl)
@@ -1081,10 +1082,10 @@ function fetchAlgorandPlatformAlgoFiStakingBalance(appIds: Array<string>, denomi
       if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
         const dynamicallyCreatedStakingAddress = addressInfo["actions"][addressInfo["actions"].indexOf("staking") + 1]
         const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + dynamicallyCreatedStakingAddress + "?include-all=true"
-        // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-        // // console.log(response)
-        // var jsonObj = JSON.parse(response)
-        // // console.log(jsonObj)
+        // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+        // const responseContent = response.getContentText()
+        // const responseJson = JSON.parse(responseContent)
+        // // console.log(responseJson)
 
         // @ts-ignore
         const responseJson = utilGetResponseJsonFromRequest(url)
@@ -1118,37 +1119,37 @@ function fetchAlgorandPlatformAlgoFiStakingBalance(appIds: Array<string>, denomi
                   }
                 }
 
-                // var appUrl = "https://api.algoexplorer.io/v2/applications/" + appId
-                // var appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true}).getContentText()
-                // // console.log(appResponse)
-                // var appJsonObj = JSON.parse(appResponse)
-                // // utilPrettyPrintJson(appJsonObj)
+                // const appUrl = "https://api.algoexplorer.io/v2/applications/" + appId
+                // const appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true})
+                // const appResponseContent = appResponse.getContentText()
+                // const appResponseJson = JSON.parse(appResponseContent)
+                // // utilPrettyPrintJson(appResponseJson)
 
                 // for (let key of appJsonObj.params["global-state"]) {
 
                 //   if (key.key === "VFlVTA==") {
                 //     // TYUL - Total Rewards Unlocked: Claimable rewards from the staking pool.
-                //     var appKeyTYULprimaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
+                //     appKeyTYULprimaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
                 //   }
 
                 //   if (key.key === "R1NT") {
                 //     // GSS - Global Staking Shares: Total amount of shares accumulated from all users inside the pool.
-                //     var appKeyGSSglobalStakingShares = parseFloat(Number(key.value.uint))
+                //     appKeyGSSglobalStakingShares = parseFloat(Number(key.value.uint))
                 //   }
 
                 //   if (key.key === "R0E=") {
                 //     // GA - Global Amount: How much everyone in the pool has staked and withdrawn.
-                //     var appKeyGAtotalStaked = parseFloat(Number(key.value.uint))
+                //     appKeyGAtotalStaked = parseFloat(Number(key.value.uint))
                 //   }
 
                 //   if (key.key === "R1Q=") {
                 //     // GT - Global Time: Time since the user has either staked, withdrawn or claimed.
-                //     var appKeyGTglobalTime = parseFloat(Number(key.value.uint))
+                //      appKeyGTglobalTime = parseFloat(Number(key.value.uint))
                 //   }
 
                 //   if (key.key === "VEFQ") {
                 //     // Secondary TYUL - Total Secondary Rewards Unlocked: Claimable secondary rewards from the staking pool.
-                //     var appKeyTYULsecondaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
+                //     appKeyTYULsecondaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
                 //   }
                 // }
 
@@ -1168,7 +1169,7 @@ function fetchAlgorandPlatformAlgoFiStakingBalance(appIds: Array<string>, denomi
                 // } else {
                 //   appKeyTYULglobalUnlockRewards = appKeyTYULprimaryGlobalUnlockRewards
                 // }
-                // var claimableRewards = ((userKeyUSSuserStakingShares + ((appKeyGTglobalTime - userKeyUTuserTimeCurrentBlockTimestamp) / 86400) * userKeyUAuserAmount) / appKeyGSSglobalStakingShares) * appKeyTYULglobalUnlockRewards / denominator
+                // let claimableRewards = ((userKeyUSSuserStakingShares + ((appKeyGTglobalTime - userKeyUTuserTimeCurrentBlockTimestamp) / 86400) * userKeyUAuserAmount) / appKeyGSSglobalStakingShares) * appKeyTYULglobalUnlockRewards / denominator
                 // console.log("Claimable Rewards: " + claimableRewards)
                 // totalAmount += claimableRewards
               }
@@ -1212,9 +1213,10 @@ function fetchMoneroBalance(transactions: string) {
     if (txType === "receive") {
       privateViewkey = txComponents[3]
       url = "https://xmrchain.net/api/outputs?txhash=" + txId + "&address=" + txAddress + "&viewkey=" + privateViewkey
-      // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-      // var jsonObj = JSON.parse(response)
-      // // console.log(jsonObj)
+      // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+      // const responseContent = response.getContentText()
+      // const responseJson = JSON.parse(response)
+      // // console.log(responseJson)
 
       // @ts-ignore
       const responseJson = utilGetResponseJsonFromRequest(url)
@@ -1228,9 +1230,10 @@ function fetchMoneroBalance(transactions: string) {
       if (isNaN(txSendAmount)) {
         txKey = txComponents[3]
         url = "https://xmrchain.net/api/outputs?txhash=" + txId + "&address=" + txAddress + "&viewkey=" + txKey + "&txprove=1"
-        // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-        // var jsonObj = JSON.parse(response)
-        // // console.log(jsonObj)
+        // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+        // const responseContent = response.getContentText()
+        // const responseJson = JSON.parse(response)
+        // // console.log(responseJson)
 
         // @ts-ignore
         const responseJson = utilGetResponseJsonFromRequest(url)
@@ -1244,9 +1247,10 @@ function fetchMoneroBalance(transactions: string) {
       }
 
       url = "https://xmrchain.net/api/transaction/" + txId
-      // var response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true}).getContentText()
-      // var jsonObj = JSON.parse(response)
-      // // console.log(jsonObj)
+      // const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+      // const responseContent = response.getContentText()
+      // const responseJson = JSON.parse(response)
+      // // console.log(responseJson)
 
       // @ts-ignore
       const responseJson = utilGetResponseJsonFromRequest(url)

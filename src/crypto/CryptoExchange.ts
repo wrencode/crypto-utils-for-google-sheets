@@ -2,20 +2,37 @@
 
 // import { utilParseExchanges, utilConvertByteStrToHexStr, utilHasSufficientValue } from "../utils/CryptoExchangeUtils"
 
-// noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
+// noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
- * Retrieve cryptocurrency exchange balance(s) for chosen asset.
+ * Retrieve all supported exchanges of the CRYPTO_EXCHANGE_BALANCE custom function.
  *
- * @param {string} cryptocurrency - The ticker for the selected cryptocurrency.
- * @param {string} exchanges - Comma-separated list of exchanges as string from which to retrieve balances.
- * @param {string} exchangesApiCredentials - Comma-separated list of exchange API credentials (formatted as name:key:secret, or name:key:secret:password) as string. * @param {boolean} doRefresh - Unused variable used to refresh function.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
+ * @param {string} exchangesApiCredentials - Comma-separated list of exchange API credentials as string, formatted as name:key:secret or name:key:secret:passphrase (Ex.: "name:key:secret,name:key:secret:passphrase").
+ * @param {boolean} doRefresh - Variable used to refresh function (can be any value that changes).
  *
- * @return {number} - The total amount of the cryptocurrency stored across all selected exchanges.
+ * @return {array} - An array of all exchanges supported by the CRYPTO_EXCHANGE_BALANCE custom function.
  *
  * @customfunction
  */
-function CRYPTO_EXCHANGE_BALANCE(cryptocurrency: string, exchanges: string, exchangesApiCredentials: string, doRefresh = true) {
+function CRYPTO_EXCHANGES(exchangesApiCredentials: string, doRefresh = true) {
+  let exchangesArray = Object.keys(getCryptoExchangeBalanceFunctions(exchangesApiCredentials))
+  console.log(exchangesArray)
+  return exchangesArray.sort()
+}
+
+// noinspection JSValidateJSDoc,JSUnusedGlobalSymbols
+/**
+ * Retrieve cryptocurrency exchange balance(s) of the selected cryptocurrency asset.
+ *
+ * @param {string} cryptocurrencyTicker - Ticker of the selected cryptocurrency for which to retrieve exchange balance(s).
+ * @param {string} exchanges - Comma-separated list of exchanges as string (Ex.: "coinbase,binance-us").
+ * @param {string} exchangesApiCredentials - Comma-separated list of exchange API credentials as string, formatted as name:key:secret or name:key:secret:passphrase (Ex.: "name:key:secret,name:key:secret:passphrase").
+ * @param {boolean} doRefresh - Variable used to refresh function (can be any value that changes).
+ *
+ * @return {number} - The total amount (sum of exchange balance(s)) of the selected cryptocurrency stored across selected exchanges.
+ *
+ * @customfunction
+ */
+function CRYPTO_EXCHANGE_BALANCE(cryptocurrencyTicker: string, exchanges: string, exchangesApiCredentials: string, doRefresh = true) {
 
   // @ts-ignore
   let exchangesArray = utilParseExchanges(exchanges)
@@ -32,7 +49,7 @@ function CRYPTO_EXCHANGE_BALANCE(cryptocurrency: string, exchanges: string, exch
     for (let exchange of exchangesArray) {
       let amount
       if (exchangeFunctionMap.hasOwnProperty(exchange.toLowerCase())) {
-        amount = exchangeFunctionMap[exchange](cryptocurrency)
+        amount = exchangeFunctionMap[exchange](cryptocurrencyTicker)
       } else {
         throw "Exchange " + exchange.toUpperCase() + " is not yet supported or you have not supplied an API key & secret for it! " +
         "Call CRYPTO_EXCHANGES to get an array of currently supported exchanges."
@@ -40,30 +57,13 @@ function CRYPTO_EXCHANGE_BALANCE(cryptocurrency: string, exchanges: string, exch
       if (!isNaN(amount)){
         totalAmount += amount
       } else {
-        throw "Retrieval of cryptocurrency " + cryptocurrency + " failed. " +
+        throw "Retrieval of cryptocurrency " + cryptocurrencyTicker + " failed. " +
         "It is possible that there was a problem with an exchange API used to retrieve balances of this asset."
       }
     }
   }
-  console.log(`Total amount of ${cryptocurrency.toUpperCase()} on exchanges (${exchangesArray.join(", ")}): ${totalAmount.toPrecision()}`)
+  console.log(`Total amount of ${cryptocurrencyTicker.toUpperCase()} on exchanges (${exchangesArray.join(", ")}): ${totalAmount.toPrecision()}`)
   return totalAmount
-}
-
-// noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
-/**
- * All supported exchanges of CRYPTO_EXCHANGE_BALANCE.
- *
- * @param {string} exchangesApiCredentials - Comma-separated list of exchange API credentials (formatted as name:key:secret, or name:key:secret:password) as string. * @param {boolean} doRefresh - Unused variable used to refresh function.
- * @param {boolean} doRefresh - Unused variable used to refresh function.
- *
- * @return {array} - An array of all supported exchanges supported by CRYPTO_EXCHANGE_BALANCE.
- *
- * @customfunction
- */
-function CRYPTO_EXCHANGES(exchangesApiCredentials: string, doRefresh = true) {
-  let exchangesArray = Object.keys(getCryptoExchangeBalanceFunctions(exchangesApiCredentials))
-  console.log(exchangesArray)
-  return exchangesArray.sort()
 }
 
 // noinspection JSValidateJSDoc
@@ -276,7 +276,7 @@ function fetchKucoinBalance(apiKey: string, apiSecret: string, apiPassphrase: st
    * @return {float} The total amount of the cryptocurrency stored on the exchange.
    */
   return function(cryptocurrency: string) {
-    //var host = 'https://api.kucoin.com'
+    // const host = 'https://api.kucoin.com'
     const host = "https://openapi-v2.kucoin.com"
     const endpoint = "/api/v1/accounts"
 
@@ -529,8 +529,8 @@ function fetchCoinbaseBalance(apiKey: string, apiSecret: string) {
     }
     console.log(`Total ${cryptocurrency.toUpperCase()} on Coinbase: ${total}`)
 
-    // let endpoint = "https://www.coinbase.com/graphql/query?&operationName=rewardsQuery&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%2255e68bb3ecebdbd4391ee8c51071c2ad8aef85d97448abd8851fbf5110c2a834%22%7D%7D&variables=%7B%22skip%22%3Afalse%2C%22nativeCurrency%22%3A%22USD%22%7D"
-    // var url = host + endpoint
+    // const endpoint = "https://www.coinbase.com/graphql/query?&operationName=rewardsQuery&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%2255e68bb3ecebdbd4391ee8c51071c2ad8aef85d97448abd8851fbf5110c2a834%22%7D%7D&variables=%7B%22skip%22%3Afalse%2C%22nativeCurrency%22%3A%22USD%22%7D"
+    // const url = host + endpoint
 
     return total
   }
@@ -916,4 +916,4 @@ function fetchMexcBalance(apiKey: string, apiSecret: string) {
   }
 }
 
-export {CRYPTO_EXCHANGE_BALANCE, CRYPTO_EXCHANGES}
+export {CRYPTO_EXCHANGES, CRYPTO_EXCHANGE_BALANCE}
