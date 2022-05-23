@@ -8,6 +8,8 @@
 creds.json
 
 # Command Line Apps Script Projects (CLASP)
+.clasp.json
+.clasp.dev.json
 .clasprc.json
 
 # Logs
