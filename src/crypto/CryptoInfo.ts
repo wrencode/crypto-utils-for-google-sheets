@@ -1,4 +1,6 @@
-// import { utilGetCryptoValueFromUsd } from "../utils/CryptoInfoUtils"
+// noinspection DuplicatedCode
+
+// import { utilGetCryptoValueFromUsd, isNumber } from "../utils/CryptoInfoUtils"
 
 // noinspection JSUnusedGlobalSymbols,JSValidateJSDoc
 /**
@@ -37,7 +39,9 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
   let responseContent
   let responseJson
   if (!Object.keys(edgeCaseCryptoMap).includes(currencyTickerIn)) {
-    if (timestamp > 0) {
+
+    // @ts-ignore
+    if (isNumber(timestamp) && timestamp > 0) {
       currencyOutValue = CRYPTO_PRICE_ON_DATE(currencyTickerIn, currencyTickerOut, apiKey, timestamp, doRefresh)
     } else {
       // example url: https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD"
@@ -56,7 +60,8 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
 
     // console.log(currencyOutValue)
 
-    if (!currencyOutValue && timestamp === 0) {
+    // @ts-ignore
+    if (!currencyOutValue && (timestamp === 0 || !isNumber(timestamp))) {
       currencyTickerOut = currencyTickerOut.toLowerCase()
 
       let cryptoIdUrl
@@ -69,8 +74,6 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
         // console.log(cryptoIdUrl)
         cryptoIdResponse = UrlFetchApp.fetch(cryptoIdUrl, {"muteHttpExceptions": true})
         // console.log(cryptoIdResponse)
-        // let cryptoIdResponseCode = response.getResponseCode()
-        // console.log(cryptoIdResponseCode)
         cryptoIdResponseContent = cryptoIdResponse.getContentText()
         // console.log(cryptoIdResponseContent)
         cryptoIdResponseJson = JSON.parse(cryptoIdResponseContent)
@@ -113,7 +116,6 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
         // noinspection JSUnresolvedVariable
         currencyOutValue = cryptoIdResponseJson.data.plot.day.slice(-1)[0]
       }
-
       console.log(currencyOutValue)
     }
   } else {
@@ -131,8 +133,8 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
       console.log(currencyOutValue)
 
       if (currencyTickerOut.toLowerCase() === "eth") {
-
-        if (timestamp > 0) {
+        // @ts-ignore
+        if (isNumber(timestamp) && timestamp > 0) {
           currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
         } else {
           // @ts-ignore
@@ -153,7 +155,8 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
       console.log(currencyOutValue)
 
       if (currencyTickerOut.toLowerCase() === "eth") {
-        if (timestamp > 0) {
+        // @ts-ignore
+        if (isNumber(timestamp) && timestamp > 0) {
           currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
         } else {
           // @ts-ignore
@@ -252,21 +255,13 @@ function CRYPTO_NAME(cryptocurrencyTicker: string, doRefresh = true) {
   }
 
   let url = "https://http-api.livecoinwatch.com/coins/" + cryptocurrencyTicker.toUpperCase() + "/info?currency=USD"
-  // let url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?symbol=" + ticker.toLowerCase()
-  // const params = {
-  //   'method': 'get',
-  //   'accept': 'application/json',
-  //   'headers': {'X-CMC_PRO_API_KEY': apiKey},
-  //   'muteHttpExceptions': true
-  // }
-  // console.log(url)
 
   let name
   let response
   let responseContent
   let responseJson
   if (cryptocurrencyTicker === "exodus-shares") {
-    url = "https://algoexplorerapi.io/v1/asset/213345970/info"
+    url = "https://node.algoexplorerapi.io/v2/assets/213345970"
     // console.log(url)
     response = UrlFetchApp.fetch(url)
     // console.log(response)
@@ -276,28 +271,19 @@ function CRYPTO_NAME(cryptocurrencyTicker: string, doRefresh = true) {
     // console.log(responseJson)
 
     // noinspection JSUnresolvedVariable
-    name = responseJson.assetName
+    name = responseJson.params.name
   } else if (cryptocurrencyTicker === "tzero-shares") {
     name = "tZERO"
   } else {
     response = UrlFetchApp.fetch(url)
-    // response = UrlFetchApp.fetch(url, params) // for use with coinmarketcap.com API
     // console.log(response)
     responseContent = response.getContentText()
     // console.log(responseContent)
     responseJson = JSON.parse(responseContent)
     // console.log(responseJson)
 
-    // name = responseJson.data[ticker.toUpperCase()].name // for use with coinmarketcap.com API
-    // for (let crypto of jsonObj.cryptos) {
-    //   if (crypto.symbol.toLowerCase() === ticker) {
-    //     name = crypto.name
-    //   }
-    // }
-
     name = responseJson.data.name
   }
-
   console.log(name)
   return name
 }

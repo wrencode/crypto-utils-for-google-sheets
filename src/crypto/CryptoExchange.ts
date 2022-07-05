@@ -102,22 +102,6 @@ function getCryptoExchangeBalanceFunctions(exchangesApiCredentials: string) {
     }
   }
 
-  // const apis = SpreadsheetApp
-  //   .getActiveSpreadsheet()
-  //   .getSheetByName("apis")
-  //   .getRange("A:D")
-  //   .getValues()
-  // // console.log(apis)
-  //
-  // let apiDict: { [key: string]: string } = {}
-  // for (let api of apis) {
-  //   if (api[0] !== '') {
-  //     // console.log(api)
-  //     apiDict[api[0]] = api.slice(1)
-  //   }
-  // }
-  // console.log(apiDict)
-
   const cryptoExchangeBalanceFunctionMap: { [key: string]: Function } = {
     "binance-us": fetchBinanceUsBalance,
     "kucoin": fetchKucoinBalance,
@@ -127,8 +111,8 @@ function getCryptoExchangeBalanceFunctions(exchangesApiCredentials: string) {
     "coinbase-pro": fetchCoinbaseProBalance,
     "gemini": fetchGeminiBalance,
     "tzero": fetchTzeroBalance,
-    "coinex": fetchCoinExBalance,
-    "mexc": fetchMexcBalance,
+    // "coinex": fetchCoinExBalance,
+    // "mexc": fetchMexcBalance,
   }
 
   let cryptoExchangeBalanceFunctions: { [key: string]: Function } = {}
@@ -148,51 +132,6 @@ function getCryptoExchangeBalanceFunctions(exchangesApiCredentials: string) {
       }
     }
   }
-  // const cryptoExchangeBalanceFunctionsA: { [key: string]: Function } = {
-  //   "binance-us": fetchBinanceUsBalance(
-  //     apiDict["binance-us"].apiKey,
-  //     apiDict["binance-us"].apiSecret
-  //   ),
-  //   "kucoin": fetchKucoinBalance(
-  //     apiDict["kucoin"].apiKey,
-  //     apiDict["kucoin"].apiSecret,
-  //     apiDict["kucoin"].apiPass!,
-  //   ),
-  //   "kraken": fetchKrakenBalance(
-  //     apiDict["kraken"].apiKey,
-  //     apiDict["kraken"].apiSecret
-  //   ),
-  //   "bittrex": fetchBittrexBalance(
-  //     apiDict["bittrex"].apiKey,
-  //     apiDict["bittrex"].apiSecret
-  //   ),
-  //   "coinbase": fetchCoinbaseBalance(
-  //     apiDict["coinbase"].apiKey,
-  //     apiDict["coinbase"].apiSecret
-  //   ),
-  //   "coinbase-pro": fetchCoinbaseProBalance(
-  //     apiDict["coinbase-pro"].apiKey,
-  //     apiDict["coinbase-pro"].apiSecret,
-  //     apiDict["coinbase-pro"].apiPass!
-  //   ),
-  //   "gemini": fetchGeminiBalance(
-  //     apiDict["gemini"].apiKey,
-  //     apiDict["gemini"].apiSecret
-  //   ),
-  //   "tzero": fetchTzeroBalance(
-  //     apiDict["tzero"].apiKey,
-  //     apiDict["tzero"].apiSecret,
-  //     apiDict["tzero"].apiPass!
-  //   ),
-  //   "coinex": fetchCoinExBalance(
-  //       apiDict["coinex"].apiKey,
-  //       apiDict["coinex"].apiSecret
-  //   ),
-  //   "mexc": fetchMexcBalance(
-  //     apiDict["mexc"].apiKey,
-  //     apiDict["mexc"].apiSecret
-  //   ),
-  // }
 
   return cryptoExchangeBalanceFunctions
 }
@@ -528,10 +467,6 @@ function fetchCoinbaseBalance(apiKey: string, apiSecret: string) {
       }
     }
     console.log(`Total ${cryptocurrency.toUpperCase()} on Coinbase: ${total}`)
-
-    // const endpoint = "https://www.coinbase.com/graphql/query?&operationName=rewardsQuery&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%2255e68bb3ecebdbd4391ee8c51071c2ad8aef85d97448abd8851fbf5110c2a834%22%7D%7D&variables=%7B%22skip%22%3Afalse%2C%22nativeCurrency%22%3A%22USD%22%7D"
-    // const url = host + endpoint
-
     return total
   }
 }
@@ -770,150 +705,150 @@ function fetchTzeroBalance(userEmail: string, userPassword: string, userDeviceFi
   }
 }
 
-// noinspection JSValidateJSDoc
-/**
- * Fetches cryptocurrency balance from the CoinEx exchange.
- *
- * @param {string} apiKey - Personal CoinEx API key.
- * @param {string} apiSecret - Personal CoinEx API secret.
- *
- * @return {function} - Function that returns the total amount of the chosen cryptocurrency stored on the exchange.
- */
-function fetchCoinExBalance(apiKey: string, apiSecret: string) {
-  /**
-   * Fetches cryptocurrency balance from the CoinEx exchange.
-   *
-   * @param {string} cryptocurrency - Selected cryptocurrency for which to retrieve the balance.
-   *
-   * @return {float} The total amount of the cryptocurrency stored on the exchange.
-   */
-  return function(cryptocurrency: string) {
-    const host = "https://api.coinex.com"
-    const api_version = "/v1"
-    // const market_endpoint = "/market/ticker/all"
-    const endpoint = "/balance/info"
+// // noinspection JSValidateJSDoc
+// /**
+//  * Fetches cryptocurrency balance from the CoinEx exchange.
+//  *
+//  * @param {string} apiKey - Personal CoinEx API key.
+//  * @param {string} apiSecret - Personal CoinEx API secret.
+//  *
+//  * @return {function} - Function that returns the total amount of the chosen cryptocurrency stored on the exchange.
+//  */
+// function fetchCoinExBalance(apiKey: string, apiSecret: string) {
+//   /**
+//    * Fetches cryptocurrency balance from the CoinEx exchange.
+//    *
+//    * @param {string} cryptocurrency - Selected cryptocurrency for which to retrieve the balance.
+//    *
+//    * @return {float} The total amount of the cryptocurrency stored on the exchange.
+//    */
+//   return function(cryptocurrency: string) {
+//     const host = "https://api.coinex.com"
+//     const api_version = "/v1"
+//     // const market_endpoint = "/market/ticker/all"
+//     const endpoint = "/balance/info"
+//
+//     // noinspection TypeScriptValidateJSTypes
+//     const tonce = new Date().getTime().toLocaleString("fullwide", {useGrouping: false})
+//
+//     // const url = host + api_version + market_endpoint
+//     // const response = UrlFetchApp.fetch(url)
+//     // const jsonObj = JSON.parse(response)
+//     // const tonce = jsonObj.data.date.toLocaleString("fullwide", {useGrouping: false})
+//     console.log(tonce)
+//
+//     const url_params = "access_id=" + apiKey + "&tonce=" + tonce + "&secret_key=" + apiSecret
+//     console.log(url_params)
+//     const url = host + api_version + endpoint + "?" + url_params
+//     console.log(url)
+//     // @ts-ignore
+//     const signature = utilConvertByteStrToHexStr(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, url_params)).toUpperCase()
+//     console.log(signature)
+//
+//     // throw new Error("stopping...")
+//
+//     const params: { [key: string]: string | boolean | object } = {
+//       "method": "GET",
+//       "muteHttpExceptions": true,
+//       // "contentType": "application/json",
+//       "headers": {
+//         "User-Agent": "Mozilla/5.0 (Windows NT 6.1 WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36",
+//         "Content-Type": "application/json",
+//         "Authorization": signature
+//       }
+//     }
+//
+//     const response = UrlFetchApp.fetch(url, params)
+//     // console.log(response)
+//     const responseContent = response.getContentText()
+//     console.log(responseContent)
+//     const responseJson = JSON.parse(responseContent)
+//     // console.log(JSON.stringify(responseJson, null, 2))
+//
+//     let total = 0
+//     for (let balance of responseJson) {
+//       if (balance.currency.toLowerCase() === cryptocurrency.toLowerCase()) {
+//         let balanceTotal = parseFloat(balance.amount)
+//         // @ts-ignore
+//         if (utilHasSufficientValue(cryptocurrency, balanceTotal)) {
+//           total += balanceTotal
+//         }
+//       }
+//     }
+//     console.log(`Total ${cryptocurrency.toUpperCase()} on Gemini: ${total}`)
+//     return total
+//   }
+// }
 
-    // noinspection TypeScriptValidateJSTypes
-    const tonce = new Date().getTime().toLocaleString("fullwide", {useGrouping: false})
-
-    // const url = host + api_version + market_endpoint
-    // const response = UrlFetchApp.fetch(url)
-    // const jsonObj = JSON.parse(response)
-    // const tonce = jsonObj.data.date.toLocaleString("fullwide", {useGrouping: false})
-    console.log(tonce)
-
-    const url_params = "access_id=" + apiKey + "&tonce=" + tonce + "&secret_key=" + apiSecret
-    console.log(url_params)
-    const url = host + api_version + endpoint + "?" + url_params
-    console.log(url)
-    // @ts-ignore
-    const signature = utilConvertByteStrToHexStr(Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, url_params)).toUpperCase()
-    console.log(signature)
-
-    // throw new Error("stopping...")
-
-    const params: { [key: string]: string | boolean | object } = {
-      "method": "GET",
-      "muteHttpExceptions": true,
-      // "contentType": "application/json",
-      "headers": {
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.1 WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36",
-        "Content-Type": "application/json",
-        "Authorization": signature
-      }
-    }
-
-    const response = UrlFetchApp.fetch(url, params)
-    // console.log(response)
-    const responseContent = response.getContentText()
-    console.log(responseContent)
-    const responseJson = JSON.parse(responseContent)
-    // console.log(JSON.stringify(responseJson, null, 2))
-
-    let total = 0
-    for (let balance of responseJson) {
-      if (balance.currency.toLowerCase() === cryptocurrency.toLowerCase()) {
-        let balanceTotal = parseFloat(balance.amount)
-        // @ts-ignore
-        if (utilHasSufficientValue(cryptocurrency, balanceTotal)) {
-          total += balanceTotal
-        }
-      }
-    }
-    console.log(`Total ${cryptocurrency.toUpperCase()} on Gemini: ${total}`)
-    return total
-  }
-}
-
-// noinspection JSValidateJSDoc
-/**
- * Fetches cryptocurrency balance from the MEXC Global exchange.
- *
- * @param {string} apiKey - Private MEXC API key.
- * @param {string} apiSecret - Private MEXC API secret.
- * @return {function} - Function that returns the total amount of the chosen cryptocurrency stored on the exchange.
- */
-function fetchMexcBalance(apiKey: string, apiSecret: string) {
-  /**
-   * Fetches cryptocurrency balance from the MEXC Global exchange.
-   *
-   * @param {string} cryptocurrency - Selected cryptocurrency for which to retrieve the balance.
-   * @return {float} The total amount of the cryptocurrency stored on the exchange.
-   */
-  return function(cryptocurrency: string) {
-    const timestamp = Math.floor(Date.now() / 1000)
-    console.log(timestamp.toPrecision())
-
-    const requestParameters = ""
-    const signatureStr = apiKey + timestamp + requestParameters
-    console.log(signatureStr)
-
-    // const signature = Utilities.computeHmacSha256Signature(signatureStr, apiSecret).map(
-    //   function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}
-    // ).join("")
-    // @ts-ignore
-    const signature = utilConvertByteStrToHexStr(Utilities.computeHmacSha256Signature(signatureStr, apiSecret, Utilities.Charset.UTF_8))
-    console.log(signature)
-
-    const params: { [key: string]: string | boolean | object } = {
-      "method": "get",
-      "accept": "application/json",
-      "muteHttpExceptions": true,
-      "headers": {
-        "ApiKey": apiKey,
-        "Request-Time": timestamp,
-        "Content-Type": "application/json",
-        "Signature": signature
-      }
-    }
-    // const url = "https://www.mexc.com/open/api/v2/common/timestamp"
-    const url = "https://www.mexc.com/open/api/v2/account/info"
-    // console.log(url)
-    const response = UrlFetchApp.fetch(url, params)
-    // console.log(response)
-    const responseContent = response.getContentText()
-    console.log(responseContent)
-    const responseJson = JSON.parse(responseContent)
-    // console.log(responseJson)
-
-    // noinspection JSUnresolvedVariable
-    const balances = responseJson.balances
-    // console.log(balances)
-
-    let total = 0
-    for (let balance of balances) {
-      if (balance.asset.toLowerCase() === cryptocurrency.toLowerCase()) {
-        // console.log(balance)
-        let balanceTotal = parseFloat(balance.free) + parseFloat(balance.locked)
-        // @ts-ignore
-        if (utilHasSufficientValue(cryptocurrency, balanceTotal)) {
-          total += balanceTotal
-        }
-      }
-    }
-    console.log(`Total ${cryptocurrency.toUpperCase()} on Binance.US: ${total}`)
-    return total
-  }
-}
+// // noinspection JSValidateJSDoc
+// /**
+//  * Fetches cryptocurrency balance from the MEXC Global exchange.
+//  *
+//  * @param {string} apiKey - Private MEXC API key.
+//  * @param {string} apiSecret - Private MEXC API secret.
+//  * @return {function} - Function that returns the total amount of the chosen cryptocurrency stored on the exchange.
+//  */
+// function fetchMexcBalance(apiKey: string, apiSecret: string) {
+//   /**
+//    * Fetches cryptocurrency balance from the MEXC Global exchange.
+//    *
+//    * @param {string} cryptocurrency - Selected cryptocurrency for which to retrieve the balance.
+//    * @return {float} The total amount of the cryptocurrency stored on the exchange.
+//    */
+//   return function(cryptocurrency: string) {
+//     const timestamp = Math.floor(Date.now() / 1000)
+//     console.log(timestamp.toPrecision())
+//
+//     const requestParameters = ""
+//     const signatureStr = apiKey + timestamp + requestParameters
+//     console.log(signatureStr)
+//
+//     // const signature = Utilities.computeHmacSha256Signature(signatureStr, apiSecret).map(
+//     //   function(e) {return ("0" + (e < 0 ? e + 256 : e).toString(16)).slice(-2)}
+//     // ).join("")
+//     // @ts-ignore
+//     const signature = utilConvertByteStrToHexStr(Utilities.computeHmacSha256Signature(signatureStr, apiSecret, Utilities.Charset.UTF_8))
+//     console.log(signature)
+//
+//     const params: { [key: string]: string | boolean | object } = {
+//       "method": "get",
+//       "accept": "application/json",
+//       "muteHttpExceptions": true,
+//       "headers": {
+//         "ApiKey": apiKey,
+//         "Request-Time": timestamp,
+//         "Content-Type": "application/json",
+//         "Signature": signature
+//       }
+//     }
+//     // const url = "https://www.mexc.com/open/api/v2/common/timestamp"
+//     const url = "https://www.mexc.com/open/api/v2/account/info"
+//     // console.log(url)
+//     const response = UrlFetchApp.fetch(url, params)
+//     // console.log(response)
+//     const responseContent = response.getContentText()
+//     console.log(responseContent)
+//     const responseJson = JSON.parse(responseContent)
+//     // console.log(responseJson)
+//
+//     // noinspection JSUnresolvedVariable
+//     const balances = responseJson.balances
+//     // console.log(balances)
+//
+//     let total = 0
+//     for (let balance of balances) {
+//       if (balance.asset.toLowerCase() === cryptocurrency.toLowerCase()) {
+//         // console.log(balance)
+//         let balanceTotal = parseFloat(balance.free) + parseFloat(balance.locked)
+//         // @ts-ignore
+//         if (utilHasSufficientValue(cryptocurrency, balanceTotal)) {
+//           total += balanceTotal
+//         }
+//       }
+//     }
+//     console.log(`Total ${cryptocurrency.toUpperCase()} on MEXC: ${total}`)
+//     return total
+//   }
+// }
 
 export {CRYPTO_EXCHANGES, CRYPTO_EXCHANGE_BALANCE}

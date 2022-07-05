@@ -3,7 +3,7 @@
 .gitignore
 .nvmrc
 tsconfig.json
-creds.json
+creds*.json
 package.json
 package-lock.json
 README.md
