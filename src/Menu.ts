@@ -29,7 +29,7 @@ function activateCryptoUtils() {
 }
 
 function getCryptoUtilsVersion() {
-    SpreadsheetApp.getUi().alert("Currently using Crypto Utils v4.0.0")
+    SpreadsheetApp.getUi().alert("Currently using Crypto Utils v5.0.0")
 }
 
 // noinspection JSUnusedGlobalSymbols
