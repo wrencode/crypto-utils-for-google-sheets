@@ -1,4 +1,4 @@
-// import CRYPTO_EXCHANGE_BALANCE from "../crypto/CryptoExchange.ts"
+// import { CRYPTO_EXCHANGE_BALANCE } from "../crypto/CryptoExchange"
 
 // noinspection JSUnusedGlobalSymbols
 /**
@@ -40,3 +40,5 @@ function testCryptoExchangeBalance() {
 }
 
 // testCryptoExchangeBalance()
+
+export {testCryptoExchangeBalance}

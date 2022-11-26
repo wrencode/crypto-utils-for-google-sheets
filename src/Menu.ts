@@ -1,5 +1,6 @@
 
 // noinspection JSUnusedGlobalSymbols
+// @ts-ignore
 function onOpen(e: any) {
     let menu = SpreadsheetApp.getUi().createAddonMenu()
     if (e && e.authMode == ScriptApp.AuthMode.NONE) {
@@ -29,7 +30,7 @@ function activateCryptoUtils() {
 }
 
 function getCryptoUtilsVersion() {
-    SpreadsheetApp.getUi().alert("Currently using Crypto Utils v5.0.0")
+    SpreadsheetApp.getUi().alert("Currently using Crypto Utils v6.0.0")
 }
 
 // noinspection JSUnusedGlobalSymbols

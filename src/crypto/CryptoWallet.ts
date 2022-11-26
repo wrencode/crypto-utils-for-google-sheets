@@ -298,7 +298,7 @@ function fetchNeoPlatformBalance(assetHash: string) {
  * Fetches balance of all public IOTA wallet receive addresses.
  *
  * @param {string} addresses - String of the public wallet addresses separated by commas.
- * 
+ *
  * @return {number} The total amount of the cryptocurrency stored in the wallet.
  */
 function fetchIotaBalance(addresses: string) {
@@ -469,40 +469,18 @@ function fetchBitcoinBalance(addresses: string) {
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
 function fetchBinanceCoinBalance(addresses: string, apiKey: string) {
-  let totalAmount = 0
+  let totalAmount = 0;
   for (let address of addresses) {
     // @ts-ignore
-    let addressInfo = utilCleanAddress(address)
-    address = addressInfo["address"]
-
-    if (address.toLowerCase().startsWith("bnb")) {
-      const url = "https://api-binance-mainnet.cosmostation.io/v1/account/" + address
-
-      // @ts-ignore
-      const responseJson = utilGetResponseJsonFromRequest(url)
-
-      let amount = 0
-      // noinspection JSUnresolvedVariable
-      for (let balance of responseJson.balances) {
-        if (balance.symbol === "BNB") {
-          // noinspection JSUnresolvedVariable
-          amount += parseFloat(balance.free) + parseFloat(balance.locked) + parseFloat(balance.frozen)
-        }
-      }
-
-      console.log("Amount: " + amount)
-      totalAmount += amount
-    } else {
-      const url = "https://api.bscscan.com/api?module=account&action=balance&address=" + address + "&tag=latest&apikey=" + apiKey
-
-      // @ts-ignore
-      let amount = utilGetCryptoAmountFromApi(url, address, "result", 1000000000000000000)
-
-      console.log("Amount: " + amount)
-      totalAmount += amount
-    }
+    let addressInfo = utilCleanAddress(address);
+    address = addressInfo["address"];
+    const url = "https://api.bscscan.com/api?module=account&action=balance&address=" + address + "&tag=latest&apikey=" + apiKey;
+    // @ts-ignore
+    let amount = utilGetCryptoAmountFromApi(url, address, "result", 1000000000000000000);
+    console.log("Amount: " + amount);
+    totalAmount += amount;
   }
-  return totalAmount
+  return totalAmount;
 }
 
 // noinspection JSValidateJSDoc

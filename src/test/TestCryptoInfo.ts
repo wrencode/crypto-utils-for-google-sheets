@@ -127,3 +127,5 @@ function testCryptoType() {
 // testCryptoPriceOnDate()
 // testCryptoName()
 // testCryptoType()
+
+export {testCryptoPrice, testCryptoPriceOnDate, testCryptoName, testCryptoType}

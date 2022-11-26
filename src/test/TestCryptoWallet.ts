@@ -170,3 +170,5 @@ function testCryptoWalletBalance() {
 
 // testCryptoWalletTickers()
 // testCryptoWalletBalance()
+
+export {testCryptoWalletTickers, testCryptoWalletBalance}
