@@ -28,7 +28,7 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
   const cryptocompareAppName = "cryptoTrackerSpreadsheet"
 
   const edgeCaseCryptoMap: { [key: string]: string } = {
-    mct: "master-contract-token",
+    mct: "mct",
     exit: "exodus-shares",
     tzrop: "tzero-shares",
   };
@@ -163,8 +163,8 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
           currencyOutValue = utilGetCryptoValueFromUsd(currencyTickerOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
         }
       }
-    } else {
-      url = "https://crypto.com/price/coin-data/" + edgeCaseCryptoMap[currencyTickerIn.toLowerCase()] + "/1d/latest.json"
+    } else if (currencyTickerIn.toLowerCase() === "mct") {
+      url = "https://coincodex.com/api/coincodex/get_coin/" + edgeCaseCryptoMap[currencyTickerIn.toLowerCase()]
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
       // console.log(response)
@@ -173,8 +173,7 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
       responseJson = JSON.parse(responseContent)
       // console.log(responseJson)
 
-      let priceData = responseJson["data"]
-      currencyOutValue = priceData[priceData.length - 1][1]
+      currencyOutValue = responseJson.last_price_usd
       console.log(currencyOutValue)
     }
   }

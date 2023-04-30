@@ -204,7 +204,7 @@ function fetchEthereumPlatformStakingBalance(contractAddress: string, denominato
    */
   return function(addresses: string, apiKey: string) {
     let totalAmount = 0
-    let validatorCount = 0
+    // let validatorCount = 0
     for (let address of addresses) {
       // @ts-ignore
       let addressInfo = utilCleanAddress(address)
@@ -220,22 +220,23 @@ function fetchEthereumPlatformStakingBalance(contractAddress: string, denominato
         totalAmount += stakedAmount
       }
 
-      // for unclaimed MATIC (from unbonding with a validator) still awaiting Polygon network checkpoints
-      if (contractAddress === "0xafe97c48b465d424d25ae3a52a722f4496ceb6e3" && validatorCount === 0) {
-        const url = "https://sentinel.matic.network/api/v2/delegators/" + address + "?limit=100&offset=0&sortBy=stake&direction=DESC&type=staked"
-
-        // @ts-ignore
-        const responseJson = utilGetResponseJsonFromRequest(url)
-
-        let unclaimedAmount = 0
-        for (let validator of responseJson.result) {
-          // noinspection JSUnresolvedVariable
-          unclaimedAmount += parseFloat(validator.unclaimedAmount) / denominator
-          validatorCount += 1
-        }
-        console.log("UNCLAIMED: " + unclaimedAmount)
-        totalAmount += unclaimedAmount
-      }
+      // // for unclaimed MATIC (from unbonding with a validator) still awaiting Polygon network checkpoints
+      // if (contractAddress === "0xafe97c48b465d424d25ae3a52a722f4496ceb6e3" && validatorCount === 0) {
+      //   // sentinel.matic.network API has been deprecated
+      //   const url = "https://sentinel.matic.network/api/v2/delegators/" + address + "?limit=100&offset=0&sortBy=stake&direction=DESC&type=staked"
+      //
+      //   // @ts-ignore
+      //   const responseJson = utilGetResponseJsonFromRequest(url)
+      //
+      //   let unclaimedAmount = 0
+      //   for (let validator of responseJson.result) {
+      //     // noinspection JSUnresolvedVariable
+      //     unclaimedAmount += parseFloat(validator.unclaimedAmount) / denominator
+      //     validatorCount += 1
+      //   }
+      //   console.log("UNCLAIMED: " + unclaimedAmount)
+      //   totalAmount += unclaimedAmount
+      // }
     }
     return totalAmount
   }
@@ -315,13 +316,10 @@ function fetchIotaBalance(addresses: string) {
     } else {
       console.log("Fetching IOTA balance for: " + address)
     }
-    // const url = "https://explorer-api.iota.org/search/mainnet/" + address
-    const url = "https://thetangle.org/api/addresses/" + address
+    const url = "https://explorer-api.iota.org/search/mainnet/" + address
 
     // @ts-ignore
-    // let amount = utilGetCryptoAmountFromApi(url, address, "address.balance", 1000000)
-    // @ts-ignore
-    let amount = utilGetCryptoAmountFromApi(url, address, "balance", 1000000)
+    let amount = utilGetCryptoAmountFromApi(url, address, "address.balance", 1000000)
 
     console.log("Amount: " + amount)
     totalAmount += amount
