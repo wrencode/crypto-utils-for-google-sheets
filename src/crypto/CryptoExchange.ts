@@ -141,47 +141,85 @@ function getCryptoExchangeBalanceFunctions(exchangesApiCredentials: string) {
  */
 function fetchBinanceUsBalance(apiKey: string, apiSecret: string) {
   /**
-   * Fetches cryptocurrency balance from the Binance.US exchange.
+   * Fetches cryptocurrency balance (including staked balance) from the Binance.US exchange.
    *
    * @param {string} cryptocurrency - Selected cryptocurrency for which to retrieve the balance.
    * @return {number} The total amount of the cryptocurrency stored on the exchange.
    */
-  return function(cryptocurrency: string) {
-    let curTime = new Date().getTime()
-    let timestamp = "timestamp=" + curTime
+  return function (cryptocurrency: string) {
+    const host = "https://api.binance.us"
 
-    let signature = Utilities.computeHmacSha256Signature(timestamp, apiSecret)
-    let signatureStr = signature.map(function(e) {
+    let curTime = new Date().getTime()
+    let timestampStr = "timestamp=" + curTime
+    let signature = Utilities.computeHmacSha256Signature(timestampStr, apiSecret)
+    let signatureStr = "signature=" + signature.map(function (e) {
       let v = (e < 0 ? e + 256 : e).toString(16)
       return v.length === 1 ? "0" + v : v
     }).join("")
     // console.log("Signature: " + signatureStr)
 
-    const params: { [key: string]: string | boolean | object } = {
+    const accountsParams: { [key: string]: string | boolean | object } = {
       "method": "GET",
       "accept": "application/json",
-      "headers": {"X-MBX-APIKEY": apiKey},
+      "headers": {
+        "X-MBX-APIKEY": apiKey
+      },
       "muteHttpExceptions": true
     }
     // make sure to use the binance.us API endpoint for Binance.us accounts
-    let url = "https://api.binance.us/api/v3/account?" + timestamp + "&signature=" + signatureStr
-    // console.log(url)
-    let response = UrlFetchApp.fetch(url, params)
+    let accountsUrl = host + "/api/v3/account?" + timestampStr + "&" + signatureStr
+    // console.log(accountsUrl)
+    let response = UrlFetchApp.fetch(accountsUrl, accountsParams)
     // console.log(response)
     let responseContent = response.getContentText()
     // console.log(responseContent)
     let responseJson = JSON.parse(responseContent)
     // console.log(responseJson)
-
     // noinspection JSUnresolvedVariable
     let balances = responseJson.balances
     // console.log(balances)
 
     let total = 0
     for (let balance of balances) {
-      if (balance.asset.toLowerCase() === cryptocurrency.toLowerCase()) {
+      const asset = balance.asset.toLowerCase()
+      if (asset === cryptocurrency.toLowerCase()) {
         // console.log(balance)
         let balanceTotal = parseFloat(balance.free) + parseFloat(balance.locked)
+
+        let stakingCurTime = new Date().getTime()
+        let stakingAssetStr = "asset=" + asset
+        let stakingTimestampStr = "timestamp=" + stakingCurTime
+        let stakingSignature = Utilities.computeHmacSha256Signature(stakingAssetStr + "&" + stakingTimestampStr, apiSecret)
+        let stakingSignatureStr = "signature=" + stakingSignature.map(function (e) {
+          let v = (e < 0 ? e + 256 : e).toString(16)
+          return v.length === 1 ? "0" + v : v
+        }).join("")
+        // console.log("Staking Signature: " + stakingSignatureStr)
+
+        const stakingParams: { [key: string]: string | boolean | object } = {
+          "method": "GET",
+          "accept": "application/json",
+          "headers": { "X-MBX-APIKEY": apiKey },
+          "muteHttpExceptions": true
+        }
+        // make sure to use the binance.us API endpoint for Binance.us accounts
+        let stakingUrl = host + "/sapi/v1/staking/stakingBalance?" + stakingAssetStr + "&" + stakingTimestampStr + "&" + stakingSignatureStr
+        // console.log(stakingUrl)
+        let stakingResponse = UrlFetchApp.fetch(stakingUrl, stakingParams)
+        // console.log(stakingResponse)
+        let stakingResponseContent = stakingResponse.getContentText()
+        // console.log(stakingResponseContent)
+        let stakingResponseJson = JSON.parse(stakingResponseContent)
+        // console.log(stakingResponseJson)
+
+        for (let stakingAsset of stakingResponseJson.data) {
+          if (stakingAsset.asset.toLowerCase() === cryptocurrency.toLowerCase()) {
+            let stakingAssetTotal = parseFloat(stakingAsset.stakingAmount) + parseFloat(stakingAsset.pendingRewards)
+            // console.log(`Total ${cryptocurrency.toUpperCase()} staking on Binance.US: ${stakingAssetTotal}`)
+            balanceTotal += stakingAssetTotal
+          }
+        }
+
         // @ts-ignore
         if (utilHasSufficientValue(cryptocurrency, balanceTotal)) {
           total += balanceTotal
@@ -364,7 +402,7 @@ function fetchCoinbaseBalance(apiKey: string, apiSecret: string) {
     // console.log(url)
 
     const nonce = Math.floor((new Date().getTime() / 1000)).toString()
-    const payload = nonce + "GET" + requestPath + "";
+    const payload = nonce + "GET" + requestPath + ""
     // @ts-ignore
     const signature = utilConvertByteStrToHexStr(Utilities.computeHmacSignature(Utilities.MacAlgorithm.HMAC_SHA_256, payload, apiSecret)).toString()
     const params: { [key: string]: string | boolean | object } = {
@@ -391,7 +429,7 @@ function fetchCoinbaseBalance(apiKey: string, apiSecret: string) {
     // }
     // TODO: handle repeated pagination instead of just using the max limit of 250
     // console.log(responseJson.has_next)
-    const balances = responseJson.accounts;
+    const balances = responseJson.accounts
     // console.log(balances)
 
     let total = 0

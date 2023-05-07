@@ -1,6 +1,6 @@
 {
   "name": "crypto-utils-for-google-sheets",
-  "version": "v7.0.2",
+  "version": "v7.1.0",
   "license": "GPL-3.0-only",
   "type": "module",
   "dependencies": {
