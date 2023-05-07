@@ -60,6 +60,15 @@ function testCryptoWalletBalance() {
   //   }
   // }
 
+  // cryptocurrency = "SMR"
+  // try {
+  //   walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_SMR_1") || ""
+  // } catch (e) {
+  //   if (e instanceof ReferenceError) {
+  //     walletAddresses = process.env.WALLET_ADDRESSES_FOR_SMR_1 || ""
+  //   }
+  // }
+
   // cryptocurrency = "NANO"
   // try {
   //   walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_NANO_1") || ""

@@ -6,6 +6,8 @@
  */
 function testCryptoPrice() {
   let currencyIn = "ETH"
+  // let currencyIn = "IOTA"
+  // let currencyIn = "SMR"
   // let currencyIn = "NANO"
   // let currencyIn = "BAN"
   // let currencyIn = "MCT"

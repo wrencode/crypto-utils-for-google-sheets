@@ -95,6 +95,7 @@ function getCryptoWalletAssets() {
     "ONT": [fetchNeoPlatformBalance("ceab719b8baa2310f232ee0d277c061704541cfb")],
     "MCT": [fetchNeoPlatformBalance("a87cc2a513f5d8b4a42432343687c2127c60bc3f")],
     "IOTA": [fetchIotaBalance],
+    "SMR": [fetchShimmerBalance],
     "ARK": [fetchArkBalance],
     "NANO": [fetchNanoBalance],
     "BAN": [fetchBananoBalance],
@@ -330,6 +331,40 @@ function fetchIotaBalance(addresses: string) {
 
 // noinspection JSValidateJSDoc
 /**
+ * Fetches balance of all public SMR wallet receive addresses.
+ *
+ * @param {string} addresses - String of the public wallet addresses separated by commas.
+ *
+ * @return {number} The total amount of the cryptocurrency stored in the wallet.
+ */
+function fetchShimmerBalance(addresses: string) {
+  console.log("Fetching SMR amounts for " + addresses.length + " addresses.")
+
+  let totalAmount = 0
+  for (let address of addresses) {
+    // @ts-ignore
+    let addressInfo = utilCleanAddress(address)
+    address = addressInfo["address"]
+    if ("actions" in addressInfo) {
+      let addressActions = addressInfo["actions"]
+      console.log("Fetching SMR balance for: " + address + " (with action" + ((addressActions.length > 1) ? "s" : "") + ": " + addressActions.join(", ") + ")")
+    }
+    else {
+      console.log("Fetching SMR balance for: " + address)
+    }
+    const url = "https://explorer-api.iota.org/stardust/balance/chronicle/shimmer/" + address
+
+    // @ts-ignore
+    let amount = utilGetCryptoAmountFromApi(url, address, "totalBalance", 1000000)
+
+    console.log("Amount: " + amount)
+    totalAmount += amount
+  }
+  return totalAmount
+}
+
+// noinspection JSValidateJSDoc
+/**
  * Fetches balance(s) of public NANO wallet(s).
  *
  * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
@@ -467,18 +502,18 @@ function fetchBitcoinBalance(addresses: string) {
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
 function fetchBinanceCoinBalance(addresses: string, apiKey: string) {
-  let totalAmount = 0;
+  let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
-    let addressInfo = utilCleanAddress(address);
-    address = addressInfo["address"];
-    const url = "https://api.bscscan.com/api?module=account&action=balance&address=" + address + "&tag=latest&apikey=" + apiKey;
+    let addressInfo = utilCleanAddress(address)
+    address = addressInfo["address"]
+    const url = "https://api.bscscan.com/api?module=account&action=balance&address=" + address + "&tag=latest&apikey=" + apiKey
     // @ts-ignore
-    let amount = utilGetCryptoAmountFromApi(url, address, "result", 1000000000000000000);
-    console.log("Amount: " + amount);
-    totalAmount += amount;
+    let amount = utilGetCryptoAmountFromApi(url, address, "result", 1000000000000000000)
+    console.log("Amount: " + amount)
+    totalAmount += amount
   }
-  return totalAmount;
+  return totalAmount
 }
 
 // noinspection JSValidateJSDoc
