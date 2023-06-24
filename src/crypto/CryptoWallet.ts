@@ -531,7 +531,7 @@ function fetchAlgorandBalance(addresses: string) {
     let addressInfo = utilCleanAddress(address)
     address = addressInfo["address"]
 
-    const url = "https://node.algoexplorerapi.io/v2/accounts/" + address
+    const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + address
 
     // @ts-ignore
     const responseJson = utilGetResponseJsonFromRequest(url)
@@ -539,8 +539,8 @@ function fetchAlgorandBalance(addresses: string) {
     let amount = 0
     let rewards = 0
     try {
-      const parsedAmount = parseFloat(responseJson["amount-without-pending-rewards"]) / 1000000
-      const parsedRewards = parseFloat(responseJson["pending-rewards"]) / 1000000
+      const parsedAmount = parseFloat(responseJson.account["amount-without-pending-rewards"]) / 1000000
+      const parsedRewards = parseFloat(responseJson.account["pending-rewards"]) / 1000000
       if (parsedAmount === undefined || parsedRewards === undefined) {
         // noinspection ExceptionCaughtLocallyJS
         throw new Error("Unable to parse value.")
@@ -582,14 +582,14 @@ function fetchAlgorandPlatformBalance(tokenId: string, denominator: number) {
       let addressInfo = utilCleanAddress(address)
       address = addressInfo["address"]
 
-      const url = "https://node.algoexplorerapi.io/v2/accounts/" + address
+      const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + address
 
       // @ts-ignore
       const responseJson = utilGetResponseJsonFromRequest(url)
 
       let amount = 0
       try {
-        for (let token of responseJson.assets) {
+        for (let token of responseJson.account.assets) {
           // noinspection TypeScriptValidateJSTypes
           let parsedTokenId = Number(token["asset-id"]).toLocaleString("fullwide", {useGrouping: false})
           if (parsedTokenId === tokenId) {
@@ -777,7 +777,7 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
       address = addressInfo["address"]
 
       if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
-        const url = "https://node.algoexplorerapi.io/v2/accounts/"+ address
+        const url = "https://indexer.algoexplorerapi.io/v2/accounts/"+ address
 
         // @ts-ignore
         const responseJson = utilGetResponseJsonFromRequest(url)
@@ -801,7 +801,7 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
               rewardsTokensAssetIds.push("algorand")
             }
 
-            for (let app of responseJson["apps-local-state"]) {
+            for (let app of responseJson.account["apps-local-state"]) {
               // noinspection TypeScriptValidateJSTypes
               let parsedAppId = Number(app["id"]).toLocaleString("fullwide", {useGrouping: false})
               if (parsedAppId === appId && rewardsTokensAssetIds.includes(assetId)) {
@@ -834,7 +834,7 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
                   }
                 }
 
-                const appUrl = "https://node.algoexplorerapi.io/v2/applications/" + appId
+                const appUrl = "https://indexer.algoexplorerapi.io/v2/applications/" + appId
 
                 // @ts-ignore
                 const appResponseJson = utilGetResponseJsonFromRequest(appUrl)
@@ -844,7 +844,7 @@ function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, d
                 let appKeyGAtotalStaked = 0
                 let appKeyGTglobalTime = 0
                 let appKeyTYULsecondaryGlobalUnlockRewards = 0
-                for (let key of appResponseJson.params["global-state"]) {
+                for (let key of appResponseJson.application.params["global-state"]) {
 
                   if (key.key === "VFlVTA==") {
                     // TYUL - Total Rewards Unlocked: Claimable rewards from the staking pool.

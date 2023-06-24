@@ -12,9 +12,15 @@ yarn install
 node_modules/typescript/bin/tsc -p .
 ```
 
+## Update Project Version
+
+Increment version number in the following files:
+* `package.json`
+* `src/Menu.ts`
+
 ## Login & Push With Clasp
 
-Login:
+#### Login
 
 ```shell
 clasp login
@@ -22,7 +28,7 @@ clasp login
 
 Make sure that the *path* to the project directory is correct in the `rootDir` value in `.clasp.json`. 
 
-Push:
+#### Push
 
 ```shell
 clasp push
