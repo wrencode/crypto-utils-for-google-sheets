@@ -8,14 +8,13 @@ function testCryptoPrice() {
   let currencyIn = "ETH"
   // let currencyIn = "IOTA"
   // let currencyIn = "SMR"
-  // let currencyIn = "NANO"
+  // let currencyIn = "XNO"
   // let currencyIn = "BAN"
   // let currencyIn = "MCT"
   // let currencyIn = "TKY"
   // let currencyIn = "DBC"
   // let currencyIn = "MATIC"
   // let currencyIn = "EXIT"
-  // let currencyIn = "YLDY"
   // let currencyIn = "TZROP"
   // let currencyIn = "YLDY"
   // let currencyIn = "DEFLY"
@@ -25,17 +24,13 @@ function testCryptoPrice() {
 
   let apiKey = "";
   try {
-    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY") || ""
+    apiKey = PropertiesService.getScriptProperties().getProperty("LIVECOINWATCH_API_KEY") || ""
   } catch (e) {
     if (e instanceof ReferenceError) {
-      apiKey = process.env.CRYPTOCOMPARE_API_KEY || ""
+      apiKey = process.env.LIVECOINWATCH_API_KEY || ""
     }
   }
 
-  // let timestamp = 1514851200
-  // let timestamp = 1544745600
-
-  // cryptoInfo.CRYPTO_PRICE(currencyIn, currencyOut, apiKey, true, timestamp)
   //@ts-ignore
   CRYPTO_PRICE(currencyIn, currencyOut, apiKey)
 }
@@ -47,14 +42,16 @@ function testCryptoPrice() {
 function testCryptoPriceOnDate() {
   let currencyIn = "ETH"
   let currencyOut = "USD"
-  let timestamp = 1514764800
+  let today = new Date()
+  today.setMonth(today.getMonth() - 1)
+  let timestamp = today.valueOf()
 
   let apiKey = "";
   try {
-    apiKey = PropertiesService.getScriptProperties().getProperty("CRYPTOCOMPARE_API_KEY") || ""
+    apiKey = PropertiesService.getScriptProperties().getProperty("LIVECOINWATCH_API_KEY") || ""
   } catch (e) {
     if (e instanceof ReferenceError) {
-      apiKey = process.env.CRYPTOCOMPARE_API_KEY || ""
+      apiKey = process.env.LIVECOINWATCH_API_KEY || ""
     }
   }
 
@@ -101,7 +98,7 @@ function testCryptoType() {
   // let ticker = "USDC"
   // let ticker = "ALGO"
   // let ticker = "XMR"
-  // let ticker = "NANO"
+  // let ticker = "XNO"
   // let ticker = "BNB"
   // let ticker = "XMR"
   // let ticker = "KCS"

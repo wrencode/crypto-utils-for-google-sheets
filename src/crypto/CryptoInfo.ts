@@ -8,7 +8,7 @@
  *
  * @param {string} currencyTickerIn - Ticker of input cryptocurrency for which the price is to be retrieved.
  * @param {string} currencyTickerOut - Ticker of output cryptocurrency/fiat currency in which to represent the price of the input cryptocurrency.
- * @param {string} apiKey - Personal API key for CryptoCompare.com.
+ * @param {string} apiKey - Personal API key for LiveCoinWatch.com.
  * @param {number} timestamp - The UNIX timestamp of the desired date for which to retrieve the price of the input cryptocurrency.
  * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
@@ -18,17 +18,20 @@
  */
 function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKey: string, timestamp = 0, doRefresh = true) {
 
-  if (currencyTickerIn === "IOTA") {
-    currencyTickerIn = "MIOTA"
-  }
-
   currencyTickerIn = currencyTickerIn.toLowerCase()
   currencyTickerOut = currencyTickerOut.toLowerCase()
 
-  const cryptocompareAppName = "cryptoTrackerSpreadsheet"
+  const alternateNameCryptoMap: { [key: string]: string } = {
+    iota: "miota",
+    xrb: "xno",
+    nano: "xno",
+    mct: "_mct"
+  }
+  if (Object.keys(alternateNameCryptoMap).includes(currencyTickerIn)) {
+    currencyTickerIn = alternateNameCryptoMap[currencyTickerIn]
+  }
 
   const edgeCaseCryptoMap: { [key: string]: string } = {
-    mct: "mct",
     exit: "exodus-shares",
     tzrop: "tzero-shares",
   };
@@ -44,82 +47,37 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
     if (isNumber(timestamp) && timestamp > 0) {
       currencyOutValue = CRYPTO_PRICE_ON_DATE(currencyTickerIn, currencyTickerOut, apiKey, timestamp, doRefresh)
     } else {
-      // example url: https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD"
-      url = "https://min-api.cryptocompare.com/data/price?fsym=" +
-        currencyTickerIn + "&tsyms=" + currencyTickerOut + "&apiKey=" + apiKey + "&extraParams=" + cryptocompareAppName
+      url = "https://api.livecoinwatch.com/coins/single"
       // console.log(url)
-      response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+      response = UrlFetchApp.fetch(
+        url,
+        {
+          "method": "post",
+          "headers": {
+            "content-type": "application/json",
+            "x-api-key": apiKey
+          },
+          "muteHttpExceptions": true,
+          "payload": JSON.stringify(
+            {
+              "currency": currencyTickerOut.toUpperCase(),
+              "code": currencyTickerIn.toUpperCase(),
+              "meta": true
+            }
+          )
+        }
+      )
       // console.log(response)
       responseContent = response.getContentText()
       // console.log(responseContent)
       responseJson = JSON.parse(responseContent)
       // console.log(responseJson)
-
-      currencyOutValue = responseJson[currencyTickerOut.toUpperCase()]
+      currencyOutValue = responseJson.rate
     }
+    console.log(currencyOutValue)
 
-    // console.log(currencyOutValue)
-
-    // @ts-ignore
-    if (!currencyOutValue && (timestamp === 0 || !isNumber(timestamp))) {
-      currencyTickerOut = currencyTickerOut.toLowerCase()
-
-      let cryptoIdUrl
-      let backupCryptoIdUrl
-      let cryptoIdResponse
-      let cryptoIdResponseContent
-      let cryptoIdResponseJson
-      try {
-        cryptoIdUrl = "https://api.coingecko.com/api/v3/coins/list?include_platform=false"
-        // console.log(cryptoIdUrl)
-        cryptoIdResponse = UrlFetchApp.fetch(cryptoIdUrl, {"muteHttpExceptions": true})
-        // console.log(cryptoIdResponse)
-        cryptoIdResponseContent = cryptoIdResponse.getContentText()
-        // console.log(cryptoIdResponseContent)
-        cryptoIdResponseJson = JSON.parse(cryptoIdResponseContent)
-        // console.log(cryptoIdResponseJson)
-
-        let cryptoId = ""
-        for (let crypto of cryptoIdResponseJson) {
-          if (crypto.symbol.toLowerCase() === currencyTickerIn.toLowerCase()) {
-            cryptoId = crypto.id
-          }
-        }
-
-        backupCryptoIdUrl = "https://api.coingecko.com/api/v3/simple/price?ids=" + cryptoId + "&vs_currencies=" + currencyTickerOut
-        // console.log(backupCryptoIdUrl)
-
-        cryptoIdResponse = UrlFetchApp.fetch(backupCryptoIdUrl, {"muteHttpExceptions": true})
-        // console.log(cryptoIdResponse)
-        cryptoIdResponseContent = cryptoIdResponse.getContentText()
-        // console.log(cryptoIdResponseContent)
-        cryptoIdResponseJson = JSON.parse(cryptoIdResponseContent)
-        // console.log(cryptoIdResponseJson)
-
-        currencyOutValue = cryptoIdResponseJson[cryptoId][currencyTickerOut]
-      } catch (error) {
-        let edgeCaseCryptoMap: { [key: string]: string } = {
-          mct: "_mct",
-        }
-        if (Object.keys(edgeCaseCryptoMap).includes(currencyTickerIn)) {
-          currencyTickerIn = edgeCaseCryptoMap[currencyTickerIn]
-        }
-        backupCryptoIdUrl = "https://http-api.livecoinwatch.com/coins/" + currencyTickerIn.toUpperCase() + "/info?currency=USD"
-        // console.log(backupCryptoIdUrl)
-        cryptoIdResponse = UrlFetchApp.fetch(backupCryptoIdUrl, {"muteHttpExceptions": true})
-        // console.log(cryptoIdResponse)
-        cryptoIdResponseContent = cryptoIdResponse.getContentText()
-        // console.log(cryptoIdResponseContent)
-        cryptoIdResponseJson = JSON.parse(cryptoIdResponseContent)
-        // console.log(cryptoIdResponseJson)
-
-        // noinspection JSUnresolvedVariable
-        currencyOutValue = cryptoIdResponseJson.data.plot.day.slice(-1)[0]
-      }
-      console.log(currencyOutValue)
-    }
   } else {
-    if (currencyTickerIn.toLowerCase() === "exit") {
+    if (currencyTickerIn === "exit") {
       url = "https://pricing.a.exodus.io/current-price?from=EXIT&to=USD"
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
@@ -129,19 +87,41 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
       responseJson = JSON.parse(responseContent)
       // console.log(responseJson)
 
-      currencyOutValue = responseJson["EXIT"]["USD"]
-      console.log(currencyOutValue)
+      let usdOutValue = responseJson["EXIT"]["USD"]
 
-      if (currencyTickerOut.toLowerCase() === "eth") {
+      if (currencyTickerOut === "eth") {
         // @ts-ignore
         if (isNumber(timestamp) && timestamp > 0) {
-          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
+          currencyOutValue = usdOutValue / CRYPTO_PRICE_ON_DATE("ETH", "USD", apiKey, timestamp, doRefresh)
         } else {
-          // @ts-ignore
-          currencyOutValue = utilGetCryptoValueFromUsd(currencyTickerOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
+          url = "https://api.livecoinwatch.com/coins/single";
+          // console.log(url)
+          response = UrlFetchApp.fetch(url, {
+            "method": "post",
+            "headers": {
+              "content-type": "application/json",
+              "x-api-key": apiKey
+            },
+            "muteHttpExceptions": true,
+            "payload": JSON.stringify({
+              "currency": "USD",
+              "code": currencyTickerOut.toUpperCase(),
+              "meta": true
+            })
+          });
+          // console.log(response)
+          responseContent = response.getContentText();
+          // console.log(responseContent)
+          responseJson = JSON.parse(responseContent);
+          // console.log(responseJson)
+          currencyOutValue = usdOutValue / responseJson.rate;
         }
+      } else {
+        currencyOutValue = usdOutValue
       }
-    } else if (currencyTickerIn.toLowerCase() === "tzrop") {
+      console.log(currencyOutValue)
+
+    } else if (currencyTickerIn === "tzrop") {
       url = "https://stomarket.com/sto/tZERO"
       // console.log(url)
       response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
@@ -150,30 +130,39 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
       // console.log(responseContent)
       let regExp = new RegExp('(class="tickerheadline">)(.*?)(<small)', 'gis')
       let result = regExp.exec(responseContent)
-      // currencyOutValue = Number(result[0].split(/\$| /)[1])
-      currencyOutValue = Number(result![0].split(/[$ ]/)[1])
-      console.log(currencyOutValue)
 
-      if (currencyTickerOut.toLowerCase() === "eth") {
+      let usdOutValue = Number(result![0].split(/[$ ]/)[1])
+
+      if (currencyTickerOut === "eth") {
         // @ts-ignore
         if (isNumber(timestamp) && timestamp > 0) {
-          currencyOutValue = CRYPTO_PRICE_ON_DATE("usd", currencyTickerOut, apiKey, timestamp, doRefresh)
+          currencyOutValue = usdOutValue / CRYPTO_PRICE_ON_DATE("ETH", "USD", apiKey, timestamp, doRefresh)
         } else {
-          // @ts-ignore
-          currencyOutValue = utilGetCryptoValueFromUsd(currencyTickerOut, currencyOutValue, apiKey, cryptocompareAppName, doRefresh)
+          url = "https://api.livecoinwatch.com/coins/single";
+          // console.log(url)
+          response = UrlFetchApp.fetch(url, {
+            "method": "post",
+            "headers": {
+              "content-type": "application/json",
+              "x-api-key": apiKey
+            },
+            "muteHttpExceptions": true,
+            "payload": JSON.stringify({
+              "currency": "USD",
+              "code": currencyTickerOut.toUpperCase(),
+              "meta": true
+            })
+          });
+          // console.log(response)
+          responseContent = response.getContentText();
+          // console.log(responseContent)
+          responseJson = JSON.parse(responseContent);
+          // console.log(responseJson)
+          currencyOutValue = usdOutValue / responseJson.rate;
         }
+      } else {
+        currencyOutValue = usdOutValue
       }
-    } else if (currencyTickerIn.toLowerCase() === "mct") {
-      url = "https://coincodex.com/api/coincodex/get_coin/" + edgeCaseCryptoMap[currencyTickerIn.toLowerCase()]
-      // console.log(url)
-      response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
-      // console.log(response)
-      responseContent = response.getContentText()
-      // console.log(responseContent)
-      responseJson = JSON.parse(responseContent)
-      // console.log(responseJson)
-
-      currencyOutValue = responseJson.last_price_usd
       console.log(currencyOutValue)
     }
   }
@@ -193,7 +182,7 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
  *
  * @param {string} currencyTickerIn - Ticker of input cryptocurrency for which the price is to be retrieved.
  * @param {string} currencyTickerOut - Ticker of output cryptocurrency/fiat currency in which to represent the price of the input cryptocurrency.
- * @param {string} apiKey - Personal API key for CryptoCompare.com.
+ * @param {string} apiKey - Personal API key for LiveCoinWatch.com.
  * @param {number} timestamp - The UNIX timestamp of the desired date for which to retrieve the price of the input cryptocurrency.
  * @param {boolean} [doRefresh] - Variable used to refresh function (can be any value that changes).
  *
@@ -203,20 +192,42 @@ function CRYPTO_PRICE(currencyTickerIn: string, currencyTickerOut: string, apiKe
  */
 function CRYPTO_PRICE_ON_DATE(currencyTickerIn: string, currencyTickerOut: string, apiKey: string, timestamp: number, doRefresh = true) {
 
-  const appName = "cryptoTrackerSpreadsheet"
+  currencyTickerIn = currencyTickerIn.toUpperCase()
+  currencyTickerOut = currencyTickerOut.toUpperCase()
 
-  // example url: "https://min-api.cryptocompare.com/data/pricehistorical?fsym=ETH&tsyms=USD&ts=1514764800&extraParams=app&calculationType=MidHighLow"
-  const url = "https://min-api.cryptocompare.com/data/pricehistorical?fsym=" +
-    currencyTickerIn + "&tsyms=" + currencyTickerOut + "&ts=" + timestamp + "&api_key=" + apiKey + "&extraParams=" + appName + "&calculationType=MidHighLow"
+  const liveCoinWatchTimeRangeSmallestMinuteIncrement = 5
+  const milliseconds = 1000 * 60 * liveCoinWatchTimeRangeSmallestMinuteIncrement
+  timestamp = Math.round(timestamp / milliseconds) * milliseconds
+
+  const url = "https://api.livecoinwatch.com/coins/single/history"
   // console.log(url)
-  const response = UrlFetchApp.fetch(url, {"muteHttpExceptions": true})
+  const response = UrlFetchApp.fetch(
+    url,
+    {
+      "method": "post",
+      "headers": {
+        "content-type": "application/json",
+        "x-api-key": apiKey
+      },
+      "muteHttpExceptions": true,
+      "payload": JSON.stringify(
+        {
+          "currency": currencyTickerOut.toUpperCase(),
+          "code": currencyTickerIn.toUpperCase(),
+          "start": timestamp,
+          "end": timestamp,
+          "meta": true
+        }
+      )
+    }
+  )
   // console.log(response)
   const responseContent = response.getContentText()
   // console.log(responseContent)
   const responseJson = JSON.parse(responseContent)
   // console.log(responseJson)
 
-  let currencyOutValue = responseJson[currencyTickerIn.toUpperCase()][currencyTickerOut.toUpperCase()]
+  let currencyOutValue = responseJson.history[0].rate
   // console.log(currencyOutValue)
 
   currencyOutValue = Number(currencyOutValue)
@@ -260,7 +271,7 @@ function CRYPTO_NAME(cryptocurrencyTicker: string, doRefresh = true) {
   let responseContent
   let responseJson
   if (cryptocurrencyTicker === "exodus-shares") {
-    url = "https://node.algoexplorerapi.io/v2/assets/213345970"
+    url = "https://mainnet-api.algonode.cloud/v2/assets/213345970?include-all=true"
     // console.log(url)
     response = UrlFetchApp.fetch(url)
     // console.log(response)

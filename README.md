@@ -4,6 +4,6 @@ A suite of utilities using custom Google Apps Script (GAS) functions that allow 
 
 * Wallet balances
 * Exchange account balances
-* Prices (current and for specified dates)
-* Full names (from tickers)
-* Types (from tickers)
+* Prices (both current and for specified dates, powered by LiveCoinWatch.com)
+* Full names (from tickers, powered by LiveCoinWatch.com)
+* Types (from tickers, powered by LiveCoinWatch.com)

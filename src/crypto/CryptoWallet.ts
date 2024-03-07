@@ -88,35 +88,24 @@ function getCryptoWalletAssets() {
       fetchEthereumPlatformBalance("0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0", 1000000000000000000),
       fetchEthereumPlatformStakingBalance("0xafe97c48b465d424d25ae3a52a722f4496ceb6e3", 1000000000000000000)
     ],
-    "NEO": [fetchNeoPlatformBalance("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b")],
-    "GAS": [fetchNeoPlatformBalance("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7")],
-    "DBC": [fetchNeoPlatformBalance("b951ecbbc5fe37a9c280a76cb0ce0014827294cf")],
-    "TKY": [fetchNeoPlatformBalance("132947096727c84c7f9e076c90f08fec3bc17f18")],
-    "ONT": [fetchNeoPlatformBalance("ceab719b8baa2310f232ee0d277c061704541cfb")],
-    "MCT": [fetchNeoPlatformBalance("a87cc2a513f5d8b4a42432343687c2127c60bc3f")],
+    "NEO": [fetchLegacyNeoPlatformBalance("c56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b")],
+    "GAS": [fetchLegacyNeoPlatformBalance("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7")],
+    "MCT": [fetchLegacyNeoPlatformBalance("a87cc2a513f5d8b4a42432343687c2127c60bc3f")],
+    "TKY": [fetchLegacyNeoPlatformBalance("132947096727c84c7f9e076c90f08fec3bc17f18")],
+    "DBC": [fetchLegacyNeoPlatformBalance("b951ecbbc5fe37a9c280a76cb0ce0014827294cf")],
+    "ONT": [fetchLegacyNeoPlatformBalance("ceab719b8baa2310f232ee0d277c061704541cfb")],
     "IOTA": [fetchIotaBalance],
-    "SMR": [fetchShimmerBalance],
+    "SMR": [fetchShimmerBalance, fetchShimmerEVMBalance],
     "ARK": [fetchArkBalance],
-    "NANO": [fetchNanoBalance],
+    "XNO": [fetchNanoBalance],
     "BAN": [fetchBananoBalance],
     "BTC": [fetchBitcoinBalance],
     "XMR": [fetchMoneroBalance],
     "BNB": [fetchBinanceCoinBalance],
-    "ALGO": [
-      fetchAlgorandBalance,
-      // fetchAlgorandPlatformYieldlyLotteryStakingBalance("233725844", 1000000, "algorand"),
-      fetchAlgorandPlatformYieldlyPoolStakingBalance(["233725850"], 1000000, "algorand"),
-    ],
+    "ALGO": [fetchAlgorandBalance],
     "EXIT": [fetchAlgorandPlatformBalance("213345970", 100000000)],
-    "YLDY": [
-      fetchAlgorandPlatformBalance("226701642", 1000000),
-      // fetchAlgorandPlatformYieldlyLotteryStakingBalance("233725844", 1000000, "226701642"),
-      fetchAlgorandPlatformYieldlyPoolStakingBalance(["233725850"], 1000000, "226701642"),
-    ],
-    "DEFLY": [
-      fetchAlgorandPlatformBalance("470842789", 1000000),
-      fetchAlgorandPlatformAlgoFiStakingBalance(["641499935"], 1000000, "470842789")
-    ],
+    "YLDY": [fetchAlgorandPlatformBalance("226701642", 1000000)],
+    "DEFLY": [fetchAlgorandPlatformBalance("470842789", 1000000)],
   }
 }
 
@@ -251,7 +240,7 @@ function fetchEthereumPlatformStakingBalance(contractAddress: string, denominato
  *
  * @return {function} - Function that returns total amount of the cryptocurrency stored in the wallet.
  */
-function fetchNeoPlatformBalance(assetHash: string) {
+function fetchLegacyNeoPlatformBalance(assetHash: string) {
   /**
    * Fetches balance(s) of public NEO/GAS/NEP-5 wallet(s).
    *
@@ -266,7 +255,7 @@ function fetchNeoPlatformBalance(assetHash: string) {
       let addressInfo = utilCleanAddress(address)
       address = addressInfo["address"]
 
-      let url = "https://neoscan.io/api/main_net/v1/get_balance/" + address
+      let url = "https://dora.coz.io/api/v1/neo2/mainnet/get_balance/" + address
 
       // @ts-ignore
       let responseJson = utilGetResponseJsonFromRequest(url)
@@ -278,13 +267,6 @@ function fetchNeoPlatformBalance(assetHash: string) {
         if (asset.asset_hash === assetHash) {
           amount += Number(asset.amount)
           // console.log("Amount: " + amount)
-          // noinspection JSUnresolvedVariable
-          if (asset.asset_symbol.toLowerCase() === "gas") {
-            url = "https://neoscan.io/api/main_net/v1/get_unclaimed/" + address
-
-            // @ts-ignore
-            amount += utilGetCryptoAmountFromApi(url, address, "unclaimed")
-          }
         }
       }
 
@@ -317,10 +299,10 @@ function fetchIotaBalance(addresses: string) {
     } else {
       console.log("Fetching IOTA balance for: " + address)
     }
-    const url = "https://explorer-api.iota.org/search/mainnet/" + address
+    const url = "https://explorer-api.iota.org/stardust/balance/chronicle/mainnet/" + address;
 
     // @ts-ignore
-    let amount = utilGetCryptoAmountFromApi(url, address, "address.balance", 1000000)
+    let amount = utilGetCryptoAmountFromApi(url, address, "totalBalance", 1000000);
 
     console.log("Amount: " + amount)
     totalAmount += amount
@@ -352,10 +334,45 @@ function fetchShimmerBalance(addresses: string) {
     else {
       console.log("Fetching SMR balance for: " + address)
     }
-    const url = "https://explorer-api.iota.org/stardust/balance/chronicle/shimmer/" + address
-
+    const url = "https://explorer-api.iota.org/stardust/balance/chronicle/shimmer/" + address;
+    // const url = "https://explorer-api.shimmer.network/stardust/balance/chronicle/shimmer/" + address;
     // @ts-ignore
     let amount = utilGetCryptoAmountFromApi(url, address, "totalBalance", 1000000)
+
+    // set amount to zero if it is NaN
+    if (Number.isNaN(amount)) {
+      amount = 0
+    }
+
+    console.log("Amount: " + amount)
+    totalAmount += amount
+  }
+  return totalAmount
+}
+
+// noinspection JSValidateJSDoc
+/**
+ * Fetches balance of all public SMR EVM wallet receive addresses.
+ *
+ * @param {string} addresses - String of the public wallet addresses separated by commas.
+ *
+ * @return {number} The total amount of the cryptocurrency stored in the wallet.
+ */
+function fetchShimmerEVMBalance(addresses: string) {
+  console.log("Fetching SMR EVM amounts for " + addresses.length + " addresses.")
+
+  let totalAmount = 0
+  for (let address of addresses) {
+    console.log("Fetching SMR EVM balance for: " + address)
+
+    const url = "https://explorer.evm.shimmer.network/api/v2/addresses/" + address
+    // @ts-ignore
+    let amount = utilGetCryptoAmountFromApi(url, address, "coin_balance", 1000000000000000000)
+
+    // set amount to zero if it is NaN
+    if (Number.isNaN(amount)) {
+      amount = 0
+    }
 
     console.log("Amount: " + amount)
     totalAmount += amount
@@ -379,32 +396,13 @@ function fetchNanoBalance(addresses: string) {
     let addressInfo = utilCleanAddress(address)
     address = addressInfo["address"]
 
-    // const url = "https://api.nanocrawler.cc/v2/accounts/" + address
-    // @ts-ignore
-    // let amount = utilGetCryptoAmountFromApi(url, address, "account.balance", 1000000000000000000000000000000)
-
-    const url = "https://nanolooker.com/api/rpc"
-    const data = {
-      "action": "account_history",
-      "account": address,
-      "count":"25",
-      "raw":true,
-      "offset":0
-    }
-
-    const params = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      payload: JSON.stringify(data)
-    }
+    const url = "https://api.nanoblockexplorer.com/v2/accounts/" + address
 
     // @ts-ignore
-    const responseJson = utilGetResponseJsonFromRequest(url, params)
+    const responseJson = utilGetResponseJsonFromRequest(url)
 
     // noinspection JSUnresolvedVariable
-    let amount = Number(parseFloat(responseJson.history[0].balance).toFixed(30)) / 1000000000000000000000000000000
+    let amount = Number(parseFloat(responseJson.account.balance).toFixed(30)) / 1000000000000000000000000000000
     //*/
 
     console.log("Amount: " + amount)
@@ -531,7 +529,7 @@ function fetchAlgorandBalance(addresses: string) {
     let addressInfo = utilCleanAddress(address)
     address = addressInfo["address"]
 
-    const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + address
+    const url = "https://mainnet-api.algonode.cloud/v2/accounts/" + address + "?include-all=true"
 
     // @ts-ignore
     const responseJson = utilGetResponseJsonFromRequest(url)
@@ -539,8 +537,8 @@ function fetchAlgorandBalance(addresses: string) {
     let amount = 0
     let rewards = 0
     try {
-      const parsedAmount = parseFloat(responseJson.account["amount-without-pending-rewards"]) / 1000000
-      const parsedRewards = parseFloat(responseJson.account["pending-rewards"]) / 1000000
+      const parsedAmount = parseFloat(responseJson["amount-without-pending-rewards"]) / 1000000
+      const parsedRewards = parseFloat(responseJson["pending-rewards"]) / 1000000
       if (parsedAmount === undefined || parsedRewards === undefined) {
         // noinspection ExceptionCaughtLocallyJS
         throw new Error("Unable to parse value.")
@@ -582,14 +580,14 @@ function fetchAlgorandPlatformBalance(tokenId: string, denominator: number) {
       let addressInfo = utilCleanAddress(address)
       address = addressInfo["address"]
 
-      const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + address
-
+      const url = "https://mainnet-api.algonode.cloud/v2/accounts/" + address + "?include-all=true"
+2
       // @ts-ignore
       const responseJson = utilGetResponseJsonFromRequest(url)
 
       let amount = 0
       try {
-        for (let token of responseJson.account.assets) {
+        for (let token of responseJson.assets) {
           // noinspection TypeScriptValidateJSTypes
           let parsedTokenId = Number(token["asset-id"]).toLocaleString("fullwide", {useGrouping: false})
           if (parsedTokenId === tokenId) {
@@ -609,433 +607,6 @@ function fetchAlgorandPlatformBalance(tokenId: string, denominator: number) {
       // noinspection TypeScriptValidateJSTypes
       console.log(Number(amount).toLocaleString("fullwide", {useGrouping: false}))
       totalAmount += amount
-    }
-    return totalAmount
-  }
-}
-
-// // noinspection JSValidateJSDoc
-// /**
-//  * Fetches balance(s) of staked Algorand asset (Algorand or Algorand Standard Asset (ASA)) on Yieldly.
-//  *
-//  * @param {string} appId - App ID corresponding to the Yieldly lottery staking pool.
-//  * @param {number} denominator - Integer with number of zeros assigned to selected cryptocurrency asset to display the readable amount.
-//  * @param {string} assetId - Asset ID corresponding to the selected cryptocurrency asset.
-//  *
-//  * @return {function} Function that returns the total amount of ALGO stored in the wallet(s) and/or staking contract.
-//  */
-// function fetchAlgorandPlatformYieldlyLotteryStakingBalance(appId: string, denominator: number, assetId: string) {
-//   /**
-//    * Fetches balance(s) of Algorand asset (Algorand or Algorand Standard Asset (ASA)) from both public wallet address(es) and staking contracts.
-//    *
-//    * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses) where asset was staked.
-//    *
-//    * @return {number} The total amount of the cryptocurrency stored in the wallet(s) and/or staking contract.
-//    */
-//   return function(addresses: string) {
-//     let totalAmount = 0
-//     for (let address of addresses) {
-//       // @ts-ignore
-//       let addressInfo = utilCleanAddress(address)
-//       address = addressInfo["address"]
-//
-//       if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
-//         const url = "https://node.algoexplorerapi.io/v2/accounts/"+ address
-//
-//         // @ts-ignore
-//         const responseJson = utilGetResponseJsonFromRequest(url)
-//
-//         let stakedAmount = 0
-//         try {
-//           let userKeyUSSuserStakingShares = 0
-//           let userKeyUAuserAmount = 0
-//           let userKeyUTuserTimeCurrentBlockTimestamp = 0
-//           for (let app of responseJson["apps-local-state"]) {
-//             // noinspection TypeScriptValidateJSTypes
-//             let parsedAppId = Number(app["id"]).toLocaleString("fullwide", {useGrouping: false})
-//             if (parsedAppId === appId) {
-//               for (let appKeyValue of app["key-value"]) {
-//
-//                 if (appKeyValue.key === "VUE=") {
-//                   // USS - User Staking Shares: Each user’s personal staking shares in the pool (requires a full 24 hours passed to update).
-//                   // noinspection JSUnresolvedVariable
-//                   userKeyUSSuserStakingShares = parseFloat(String(Number(appKeyValue.value.uint)))
-//                   // UA - User Amount: Net amount the user has staked and withdrawn.
-//                   userKeyUAuserAmount = userKeyUSSuserStakingShares
-//                   let parsedAmount = userKeyUSSuserStakingShares / denominator
-//                   if (parsedAmount === undefined) {
-//                     // noinspection ExceptionCaughtLocallyJS
-//                     throw new Error("Unable to parse value.")
-//                   } else {
-//                     if (assetId === "algorand") {
-//                       stakedAmount += parsedAmount
-//                     }
-//                   }
-//                 }
-//
-//                 if (appKeyValue.key === "VVQ=") {
-//                   // UT - User Time: Time since the user has either staked, withdrawn or claimed.
-//                   // noinspection JSUnresolvedVariable
-//                   userKeyUTuserTimeCurrentBlockTimestamp = parseFloat(String(Number(appKeyValue.value.uint)))
-//                 }
-//               }
-//             }
-//           }
-//
-//           let appKeyTYULglobalUnlockRewards = 0
-//           let appKeyGSSglobalStakingShares = 0
-//           let appKeyGAtotalStaked = 0
-//           let appKeyGTglobalTime = 0
-//           if (assetId === "226701642") {
-//             const appUrl = "https://node.algoexplorerapi.io/v2/applications/" + appId
-//
-//             // @ts-ignore
-//             const appResponseJson = utilGetResponseJsonFromRequest(appUrl)
-//
-//             for (let key of appResponseJson.params["global-state"]) {
-//
-//               if (key.key === "VFlVTA==") {
-//                 // TYUL - Total Rewards Unlocked: Claimable YLDY from the prize game and staking pools.
-//                 // noinspection JSUnresolvedVariable
-//                 appKeyTYULglobalUnlockRewards = parseFloat(String(Number(key.value.uint)))
-//               }
-//
-//               if (key.key === "R1NT") {
-//                 // GSS - Global Staking Shares: Total amount of shares accumulated from all users inside the pool.
-//                 // noinspection JSUnresolvedVariable
-//                 appKeyGSSglobalStakingShares = parseFloat(String(Number(key.value.uint)))
-//               }
-//
-//               if (key.key === "R0E=") {
-//                 // GA - Global Amount: How much everyone in the pool has staked and withdrawn.
-//                 // noinspection JSUnresolvedVariable
-//                 appKeyGAtotalStaked = parseFloat(String(Number(key.value.uint)))
-//               }
-//
-//               if (key.key === "R1Q=") {
-//                 // GT - Global Time: Time since the user has either staked, withdrawn or claimed.
-//                 // noinspection JSUnresolvedVariable
-//                 appKeyGTglobalTime = parseFloat(String(Number(key.value.uint)))
-//               }
-//             }
-//
-//             // https://www.reddit.com/r/yieldly/comments/peg1wk/get_yldy_claimable_rewards_using_algoexplorer_api/
-//             // https://www.reddit.com/r/yieldly/comments/pbpqrb/api/
-//
-//             // https://github.com/JoshLmao/ydly-calc
-//             // GT: Global Time
-//             // GSS: Global Staking Shares
-//             // USS: User Staking Shares
-//             // UA: User Amount
-//             // UT: User Time
-//             // Claimable YLDY Rewards = ((USS + ((GT - UT) / 86400) * UA) / GSS) * TYUL / 1000000
-//             let yieldlyClaimableRewards = ((userKeyUSSuserStakingShares + ((appKeyGTglobalTime - userKeyUTuserTimeCurrentBlockTimestamp) / 86400) * userKeyUAuserAmount) / appKeyGSSglobalStakingShares) * appKeyTYULglobalUnlockRewards / denominator
-//             console.log("Yieldly claimable Rewards: " + yieldlyClaimableRewards)
-//             totalAmount += yieldlyClaimableRewards
-//           }
-//         } catch(err) {
-//           console.log("ERROR: Failed to parse amount for address: " + address)
-//         }
-//
-//         console.log("Staking: " + stakedAmount)
-//         totalAmount += stakedAmount
-//       }
-//     }
-//     return totalAmount
-//   }
-// }
-
-// noinspection JSValidateJSDoc
-/**
- * Fetches balance(s) of staked Algorand asset (Algorand or Algorand Standard Asset (ASA)) on Yieldly.
- *
- * @param {Array[string]} appIds - List of app IDs corresponding to Yieldly staking pools.
- * @param {number} denominator - Integer with number of zeros assigned to selected cryptocurrency asset to display the readable amount.
- * @param {string} assetId - Asset ID corresponding to the selected cryptocurrency asset.
- *
- * @return {function} The total amount of ALGO stored in the wallet(s) and/or staking contract.
- */
-function fetchAlgorandPlatformYieldlyPoolStakingBalance(appIds: Array<string>, denominator: number, assetId: string) {
-  /**
-   * Fetches balance(s) of Algorand asset (Algorand or Algorand Standard Asset (ASA)) from both public wallet address(es) and staking contracts.
-   *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses) where asset was staked.
-   *
-   * @return {number} The total amount of the cryptocurrency stored in the wallet(s) and/or staking contract.
-   */
-  return function(addresses: string) {
-
-    const urlStakingPools = "https://app.yieldly.finance/staking/pools"
-
-    // @ts-ignore
-    const stakingPoolsResponseJson = utilGetResponseJsonFromRequest(urlStakingPools)
-
-    let totalAmount = 0
-    for (let address of addresses) {
-      // @ts-ignore
-      let addressInfo = utilCleanAddress(address)
-      address = addressInfo["address"]
-
-      if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
-        const url = "https://indexer.algoexplorerapi.io/v2/accounts/"+ address
-
-        // @ts-ignore
-        const responseJson = utilGetResponseJsonFromRequest(url)
-
-        let stakedAmount = 0
-        try {
-          for (let appId of appIds) {
-            let stakingTokenAssetId
-            let rewardsTokensAssetIds = []
-            for (let pool of stakingPoolsResponseJson) {
-              // noinspection TypeScriptValidateJSTypes
-              let parsedPoolId = Number(pool["Id"]).toLocaleString("fullwide", {useGrouping: false})
-              if (parsedPoolId === appId) {
-                // noinspection TypeScriptValidateJSTypes
-                stakingTokenAssetId = Number(pool["StakingToken"]["TokenAssetId"]).toLocaleString("fullwide", {useGrouping: false})
-                // noinspection TypeScriptValidateJSTypes
-                rewardsTokensAssetIds = pool["RewardToken"].map((value: {[key: string]: any}) => Number(value["TokenAssetId"]).toLocaleString("fullwide", {useGrouping: false}))
-              }
-            }
-            if (appId === "233725850") {
-              rewardsTokensAssetIds.push("algorand")
-            }
-
-            for (let app of responseJson.account["apps-local-state"]) {
-              // noinspection TypeScriptValidateJSTypes
-              let parsedAppId = Number(app["id"]).toLocaleString("fullwide", {useGrouping: false})
-              if (parsedAppId === appId && rewardsTokensAssetIds.includes(assetId)) {
-
-                let userKeyUSSuserStakingShares = 0
-                let userKeyUAuserAmount = 0
-                let userKeyUTuserTimeCurrentBlockTimestamp = 0
-                for (let appKeyValue of app["key-value"]) {
-                  if (appKeyValue.key === "VUE=") {
-                    // USS - User Staking Shares: Each user’s personal staking shares in the pool (requires a full 24 hours passed to update).
-                    // noinspection JSUnresolvedVariable
-                    userKeyUSSuserStakingShares = parseFloat(String(Number(appKeyValue.value.uint)))
-                    // UA - User Amount: Net amount the user has staked and withdrawn.
-                    userKeyUAuserAmount = userKeyUSSuserStakingShares
-                    let parsedAmount = userKeyUSSuserStakingShares / denominator
-                    if (parsedAmount === undefined) {
-                      // noinspection ExceptionCaughtLocallyJS
-                      throw new Error("Unable to parse value.")
-                    } else {
-                      if (assetId !== "algorand") {
-                        stakedAmount += parsedAmount
-                      }
-                    }
-                  }
-
-                  if (appKeyValue.key === "VVQ=") {
-                    // UT - User Time: Time since the user has either staked, withdrawn or claimed.
-                    // noinspection JSUnresolvedVariable
-                    userKeyUTuserTimeCurrentBlockTimestamp = parseFloat(String(Number(appKeyValue.value.uint)))
-                  }
-                }
-
-                const appUrl = "https://indexer.algoexplorerapi.io/v2/applications/" + appId
-
-                // @ts-ignore
-                const appResponseJson = utilGetResponseJsonFromRequest(appUrl)
-
-                let appKeyTYULprimaryGlobalUnlockRewards = 0
-                let appKeyGSSglobalStakingShares = 0
-                let appKeyGAtotalStaked = 0
-                let appKeyGTglobalTime = 0
-                let appKeyTYULsecondaryGlobalUnlockRewards = 0
-                for (let key of appResponseJson.application.params["global-state"]) {
-
-                  if (key.key === "VFlVTA==") {
-                    // TYUL - Total Rewards Unlocked: Claimable rewards from the staking pool.
-                    // noinspection JSUnresolvedVariable
-                    appKeyTYULprimaryGlobalUnlockRewards = parseFloat(String(Number(key.value.uint)))
-                  }
-
-                  if (key.key === "R1NT") {
-                    // GSS - Global Staking Shares: Total amount of shares accumulated from all users inside the pool.
-                    // noinspection JSUnresolvedVariable
-                    appKeyGSSglobalStakingShares = parseFloat(String(Number(key.value.uint)))
-                  }
-
-                  if (key.key === "R0E=") {
-                    // GA - Global Amount: How much everyone in the pool has staked and withdrawn.
-                    // noinspection JSUnresolvedVariable
-                    appKeyGAtotalStaked = parseFloat(String(Number(key.value.uint)))
-                  }
-
-                  if (key.key === "R1Q=") {
-                    // GT - Global Time: Time since the user has either staked, withdrawn or claimed.
-                    // noinspection JSUnresolvedVariable
-                    appKeyGTglobalTime = parseFloat(String(Number(key.value.uint)))
-                  }
-
-                  if (key.key === "VEFQ") {
-                    // Secondary TYUL - Total Secondary Rewards Unlocked: Claimable secondary rewards from the staking pool.
-                    // noinspection JSUnresolvedVariable
-                    appKeyTYULsecondaryGlobalUnlockRewards = parseFloat(String(Number(key.value.uint)))
-                  }
-                }
-
-                // https://www.reddit.com/r/yieldly/comments/peg1wk/get_yldy_claimable_rewards_using_algoexplorer_api/
-                // https://www.reddit.com/r/yieldly/comments/pbpqrb/api/
-
-                // https://github.com/JoshLmao/ydly-calc
-                // GT: Global Time
-                // GSS: Global Staking Shares
-                // USS: User Staking Shares
-                // UA: User Amount
-                // UT: User Time
-                // Claimable YLDY Rewards = ((USS + ((GT - UT) / 86400) * UA) / GSS) * TYUL / 1000000
-                let appKeyTYULglobalUnlockRewards
-                if (assetId === "algorand") {
-                  appKeyTYULglobalUnlockRewards = appKeyTYULsecondaryGlobalUnlockRewards
-                } else {
-                  appKeyTYULglobalUnlockRewards = appKeyTYULprimaryGlobalUnlockRewards
-                }
-                let claimableRewards = ((userKeyUSSuserStakingShares + ((appKeyGTglobalTime - userKeyUTuserTimeCurrentBlockTimestamp) / 86400) * userKeyUAuserAmount) / appKeyGSSglobalStakingShares) * appKeyTYULglobalUnlockRewards / denominator
-                console.log("Claimable Rewards: " + claimableRewards)
-                totalAmount += claimableRewards
-              }
-            }
-          }
-        } catch(err) {
-          console.log("ERROR: Failed to parse amount for address: " + address)
-        }
-
-        console.log("Staking: " + stakedAmount)
-        totalAmount += stakedAmount
-      }
-    }
-    return totalAmount
-  }
-}
-
-// noinspection JSValidateJSDoc
-/**
- * Fetches balance(s) of staked Algorand asset (Algorand or Algorand Standard Asset (ASA)) on AlgoFi.
- *
- * @param {Array[string]} appIds - List of app IDs corresponding to AlgoFi staking pools.
- * @param {number} denominator - Integer with number of zeros assigned to selected cryptocurrency asset to display the readable amount.
- * @param {string} assetId - Asset ID corresponding to the selected cryptocurrency asset.
- *
- * @return {function} The total amount of DEFLY stored in the wallet(s) and/or staking contract.
- */
-function fetchAlgorandPlatformAlgoFiStakingBalance(appIds: Array<string>, denominator: number, assetId: string) {
-  /**
-   * Fetches balance(s) of Algorand asset (Algorand or Algorand Standard Asset (ASA)) from both public wallet address(es) and staking contracts.
-   *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses) where asset was staked.
-   *
-   * @return {number} The total amount of the cryptocurrency stored in the wallet(s) and/or staking contract.
-   */
-  return function(addresses: string) {
-
-    let totalAmount = 0
-    for (let address of addresses) {
-      // @ts-ignore
-      let addressInfo = utilCleanAddress(address)
-      address = addressInfo["address"]
-
-      if ("actions" in addressInfo && addressInfo["actions"].includes("staking")) {
-        const dynamicallyCreatedStakingAddress = addressInfo["actions"][addressInfo["actions"].indexOf("staking") + 1]
-        const url = "https://indexer.algoexplorerapi.io/v2/accounts/" + dynamicallyCreatedStakingAddress + "?include-all=true"
-
-        // @ts-ignore
-        const responseJson = utilGetResponseJsonFromRequest(url)
-
-        let stakedAmount = 0
-        try {
-          for (let appId of appIds) {
-            for (let app of responseJson.account["apps-local-state"]) {
-              // noinspection TypeScriptValidateJSTypes
-              let parsedAppId = Number(app["id"]).toLocaleString("fullwide", {useGrouping: false})
-              if (parsedAppId === appId) {
-
-                let userKeyUSSuserStakingShares = 0
-                let userKeyUAuserAmount = 0
-                for (let appKeyValue of app["key-value"]) {
-                  if (appKeyValue.key === "dWFj") {
-                    // USS - User Staking Shares: Each user’s personal staking shares in the pool (requires a full 24 hours passed to update).
-                    // noinspection JSUnresolvedVariable
-                    userKeyUSSuserStakingShares = parseFloat(String(Number(appKeyValue.value.uint)))
-                    // UA - User Amount: Net amount the user has staked and withdrawn.
-                    userKeyUAuserAmount = userKeyUSSuserStakingShares
-                    let parsedAmount = userKeyUSSuserStakingShares / denominator
-                    if (parsedAmount === undefined) {
-                      // noinspection ExceptionCaughtLocallyJS
-                      throw new Error("Unable to parse value.")
-                    } else {
-                      if (assetId !== "algorand") {
-                        stakedAmount += parsedAmount
-                      }
-                    }
-                  }
-                }
-
-                // const appUrl = "https://node.algoexplorerapi.io/v2/applications/" + appId
-                // const appResponse = UrlFetchApp.fetch(appUrl, {"muteHttpExceptions": true})
-                // const appResponseContent = appResponse.getContentText()
-                // const appResponseJson = JSON.parse(appResponseContent)
-                // // utilPrettyPrintJson(appResponseJson)
-
-                // for (let key of appJsonObj.params["global-state"]) {
-
-                //   if (key.key === "VFlVTA==") {
-                //     // TYUL - Total Rewards Unlocked: Claimable rewards from the staking pool.
-                //     appKeyTYULprimaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
-                //   }
-
-                //   if (key.key === "R1NT") {
-                //     // GSS - Global Staking Shares: Total amount of shares accumulated from all users inside the pool.
-                //     appKeyGSSglobalStakingShares = parseFloat(Number(key.value.uint))
-                //   }
-
-                //   if (key.key === "R0E=") {
-                //     // GA - Global Amount: How much everyone in the pool has staked and withdrawn.
-                //     appKeyGAtotalStaked = parseFloat(Number(key.value.uint))
-                //   }
-
-                //   if (key.key === "R1Q=") {
-                //     // GT - Global Time: Time since the user has either staked, withdrawn or claimed.
-                //      appKeyGTglobalTime = parseFloat(Number(key.value.uint))
-                //   }
-
-                //   if (key.key === "VEFQ") {
-                //     // Secondary TYUL - Total Secondary Rewards Unlocked: Claimable secondary rewards from the staking pool.
-                //     appKeyTYULsecondaryGlobalUnlockRewards = parseFloat(Number(key.value.uint))
-                //   }
-                // }
-
-                // // https://www.reddit.com/r/yieldly/comments/peg1wk/get_yldy_claimable_rewards_using_algoexplorer_api/
-                // // https://www.reddit.com/r/yieldly/comments/pbpqrb/api/
-
-                // // https://github.com/JoshLmao/ydly-calc
-                // // GT: Global Time
-                // // GSS: Global Staking Shares
-                // // USS: User Staking Shares
-                // // UA: User Amount
-                // // UT: User Time
-                // // Claimable YLDY Rewards = ((USS + ((GT - UT) / 86400) * UA) / GSS) * TYUL / 1000000
-                // let appKeyTYULglobalUnlockRewards
-                // if (assetId === "algorand") {
-                //   appKeyTYULglobalUnlockRewards = appKeyTYULsecondaryGlobalUnlockRewards
-                // } else {
-                //   appKeyTYULglobalUnlockRewards = appKeyTYULprimaryGlobalUnlockRewards
-                // }
-                // let claimableRewards = ((userKeyUSSuserStakingShares + ((appKeyGTglobalTime - userKeyUTuserTimeCurrentBlockTimestamp) / 86400) * userKeyUAuserAmount) / appKeyGSSglobalStakingShares) * appKeyTYULglobalUnlockRewards / denominator
-                // console.log("Claimable Rewards: " + claimableRewards)
-                // totalAmount += claimableRewards
-              }
-            }
-          }
-        } catch(err) {
-          console.log("ERROR: Failed to parse amount for address: " + address)
-        }
-
-        console.log("Staking: " + stakedAmount)
-        totalAmount += stakedAmount
-      }
     }
     return totalAmount
   }

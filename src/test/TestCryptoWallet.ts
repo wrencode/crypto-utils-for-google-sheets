@@ -69,7 +69,7 @@ function testCryptoWalletBalance() {
   //   }
   // }
 
-  // cryptocurrency = "NANO"
+  // cryptocurrency = "XNO"
   // try {
   //   walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_NANO_1") || ""
   // } catch (e) {
@@ -89,6 +89,10 @@ function testCryptoWalletBalance() {
 
   // cryptocurrency = "NEO"
   // cryptocurrency = "GAS"
+  // cryptocurrency = "DBC"
+  // cryptocurrency = "TKY"
+  // cryptocurrency = "MCT"
+  // cryptocurrency = "ONT"
   // try {
   //   walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_NEO_PLATFORM_1") || ""
   //   // walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_NEO_PLATFORM_2") || ""

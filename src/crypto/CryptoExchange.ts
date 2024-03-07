@@ -248,7 +248,6 @@ function fetchKucoinBalance(apiKey: string, apiSecret: string, apiPassphrase: st
    * @return {float} The total amount of the cryptocurrency stored on the exchange.
    */
   return function(cryptocurrency: string) {
-    // const host = 'https://api.kucoin.com'
     const host = "https://openapi-v2.kucoin.com"
     const endpoint = "/api/v1/accounts"
 
