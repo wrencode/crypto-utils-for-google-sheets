@@ -44,20 +44,19 @@ function homepageSidebar() {
   let homepageCard = CardService.newCardBuilder()
     .setHeader(
       CardService.newCardHeader()
-        .setTitle("Custom Functions")
-        .setSubtitle("Available functions for Google Sheets.")
+        .setTitle("Cryptocurrency Utilities")
+        // @ts-ignore
+        .setSubtitle(`v${version}`)
     )
     .addSection(
       CardService.newCardSection()
         // @ts-ignore
-        .setHeader(`About v${version}`)
+        .setHeader("About")
         .setCollapsible(true)
         .addWidget(
           CardService.newDecoratedText()
             .setText(
-              "Cryptocurrency Utilities for Google Sheets\n" +
-              "\n" +
-              "A suite of utilities using custom Google Apps Script (GAS) functions that allow for a variety of cryptocurrency data retrieval operations:\n" +
+              "A suite of cryptocurrency utilities for Google Sheets using custom Google Apps Script (GAS) functions that allow for a variety of cryptocurrency data retrieval operations:\n" +
               "\n" +
               " • Wallet balances\n" +
               " • Exchange account balances\n" +
