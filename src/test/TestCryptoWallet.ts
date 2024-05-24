@@ -177,6 +177,15 @@ function testCryptoWalletBalance() {
   //   }
   // }
 
+  // cryptocurrency = "XLM"
+  // try {
+  //   walletAddresses = PropertiesService.getScriptProperties().getProperty("WALLET_ADDRESSES_FOR_XLM_1") || ""
+  // } catch (e) {
+  //   if (e instanceof ReferenceError) {
+  //     walletAddresses = process.env.WALLET_ADDRESSES_FOR_XLM_1 || ""
+  //   }
+  // }
+
   // @ts-ignore
   CRYPTO_WALLET_BALANCE(cryptocurrency, walletAddresses, apiKey)
 }

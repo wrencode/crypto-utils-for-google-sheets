@@ -16,7 +16,7 @@ node_modules/typescript/bin/tsc -p .
 
 Increment version number in the following files:
 * `package.json`
-* `src/Menu.ts`
+* `src/version.ts`
 
 ## Login & Push With Clasp
 

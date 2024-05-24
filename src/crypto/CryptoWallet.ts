@@ -34,8 +34,8 @@ function CRYPTO_WALLET_TICKERS(doRefresh = true) {
 function CRYPTO_WALLET_BALANCE(cryptocurrencyTicker: string, walletAddresses: string, apiKey: string, doRefresh = true) {
 
   // @ts-ignore
-  walletAddresses = utilParseCryptoAddresses(walletAddresses).filter(Boolean)
-  console.log(walletAddresses)
+  let addresses: Array<string> = utilParseCryptoAddresses(walletAddresses).filter(Boolean)
+  console.log(addresses)
 
   const cryptoAssets = getCryptoWalletAssets() as {[key: string]: Array<Function>}
 
@@ -47,7 +47,7 @@ function CRYPTO_WALLET_BALANCE(cryptocurrencyTicker: string, walletAddresses: st
   if (cryptoAssets.hasOwnProperty(cryptocurrencyTicker)) {
     amount = cryptoAssets[cryptocurrencyTicker].reduce((prevFunc, currFunc) => {
       return () => {
-        return prevFunc(walletAddresses, apiKey) + currFunc(walletAddresses, apiKey)
+        return prevFunc(addresses, apiKey) + currFunc(addresses, apiKey)
       }
     }, () => 0)()
     console.log(`Total amount of ${cryptocurrencyTicker.toUpperCase()}: ${amount.toPrecision()}`)
@@ -106,6 +106,7 @@ function getCryptoWalletAssets() {
     "EXIT": [fetchAlgorandPlatformBalance("213345970", 100000000)],
     "YLDY": [fetchAlgorandPlatformBalance("226701642", 1000000)],
     "DEFLY": [fetchAlgorandPlatformBalance("470842789", 1000000)],
+    "XLM": [fetchStellarLumensBalance]
   }
 }
 
@@ -113,12 +114,12 @@ function getCryptoWalletAssets() {
 /**
  * Fetches balance(s) of public ETH wallet(s).
  *
- * @param {string} addresses - Comma-separated list of public wallet addresses as string.
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  * @param {string} apiKey - Personal API key for Etherscan.io.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchEthereumBalance(addresses: string, apiKey: string) {
+function fetchEthereumBalance(addresses: Array<string>, apiKey: string) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -149,12 +150,12 @@ function fetchEthereumPlatformBalance(contractAddress: string, denominator: numb
   /**
    * Fetches balance(s) of public ERC20 wallet(s).
    *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+   * @param {Array<string>} addresses - Array of public wallet addresses.
    * @param {string} apiKey - Personal API key for Etherscan.io.
    *
    * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
    */
-  return function(addresses: string, apiKey: string) {
+  return function(addresses: Array<string>, apiKey: string) {
     let totalAmount = 0
     for (let address of addresses) {
       // @ts-ignore
@@ -187,12 +188,12 @@ function fetchEthereumPlatformStakingBalance(contractAddress: string, denominato
   /**
    * Fetches balance(s) of stakeable ERC20 tokens from both public wallet address(es) and staking contracts.
    *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+   * @param {Array<string>} addresses - Array of public wallet addresses.
    * @param {string} apiKey - Personal API key for Etherscan.io.
    *
    * @return {number} The total amount of the cryptocurrency stored in the wallet(s) and/or staking contract.
    */
-  return function(addresses: string, apiKey: string) {
+  return function(addresses: Array<string>, apiKey: string) {
     let totalAmount = 0
     // let validatorCount = 0
     for (let address of addresses) {
@@ -244,11 +245,11 @@ function fetchLegacyNeoPlatformBalance(assetHash: string) {
   /**
    * Fetches balance(s) of public NEO/GAS/NEP-5 wallet(s).
    *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+   * @param {Array<string>} addresses - Array of public wallet addresses.
    *
    * @return {float} The total amount of the cryptocurrency stored in the wallet(s).
    */
-  return function(addresses: string) {
+  return function(addresses: Array<string>) {
     let totalAmount = 0
     for (let address of addresses) {
       // @ts-ignore
@@ -281,11 +282,11 @@ function fetchLegacyNeoPlatformBalance(assetHash: string) {
 /**
  * Fetches balance of all public IOTA wallet receive addresses.
  *
- * @param {string} addresses - String of the public wallet addresses separated by commas.
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet.
  */
-function fetchIotaBalance(addresses: string) {
+function fetchIotaBalance(addresses: Array<string>) {
   console.log("Fetching IOTA amounts for " + addresses.length + " addresses.")
 
   let totalAmount = 0
@@ -315,11 +316,12 @@ function fetchIotaBalance(addresses: string) {
 /**
  * Fetches balance of all public SMR wallet receive addresses.
  *
- * @param {string} addresses - String of the public wallet addresses separated by commas.
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet.
  */
-function fetchShimmerBalance(addresses: string) {
+function fetchShimmerBalance(addresses: Array<string>) {
+  addresses = addresses.filter((address: string) => address.startsWith("smr"))
   console.log("Fetching SMR amounts for " + addresses.length + " addresses.")
 
   let totalAmount = 0
@@ -354,11 +356,12 @@ function fetchShimmerBalance(addresses: string) {
 /**
  * Fetches balance of all public SMR EVM wallet receive addresses.
  *
- * @param {string} addresses - String of the public wallet addresses separated by commas.
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet.
  */
-function fetchShimmerEVMBalance(addresses: string) {
+function fetchShimmerEVMBalance(addresses: Array<string>) {
+  addresses = addresses.filter((address: string) => !address.startsWith("smr"))
   console.log("Fetching SMR EVM amounts for " + addresses.length + " addresses.")
 
   let totalAmount = 0
@@ -368,9 +371,11 @@ function fetchShimmerEVMBalance(addresses: string) {
     const url = "https://explorer.evm.shimmer.network/api/v2/addresses/" + address
     // @ts-ignore
     let amount = utilGetCryptoAmountFromApi(url, address, "coin_balance", 1000000000000000000)
+    // @ts-ignore
+    const value = amount * utilGetResponseJsonFromRequest(url)["exchange_rate"]
 
     // set amount to zero if it is NaN
-    if (Number.isNaN(amount)) {
+    if (Number.isNaN(amount) || value < 0.01) {
       amount = 0
     }
 
@@ -384,11 +389,11 @@ function fetchShimmerEVMBalance(addresses: string) {
 /**
  * Fetches balance(s) of public NANO wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchNanoBalance(addresses: string) {
+function fetchNanoBalance(addresses: Array<string>) {
   let totalAmount = 0
   for (let address of addresses) {
 
@@ -415,11 +420,11 @@ function fetchNanoBalance(addresses: string) {
 /**
  * Fetches balance(s) of public Banano (BAN) wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchBananoBalance(addresses: string) {
+function fetchBananoBalance(addresses: Array<string>) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -441,11 +446,11 @@ function fetchBananoBalance(addresses: string) {
 /**
  * Fetches balance(s) of public ARK wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchArkBalance(addresses: string) {
+function fetchArkBalance(addresses: Array<string>) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -466,11 +471,11 @@ function fetchArkBalance(addresses: string) {
 /**
  * Fetches balance(s) of public BTC/LTC/DASH/DOGE wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchBitcoinBalance(addresses: string) {
+function fetchBitcoinBalance(addresses: Array<string>) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -494,12 +499,12 @@ function fetchBitcoinBalance(addresses: string) {
 /**
  * Fetches balance(s) of public Binance Coin (BNB) wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  * @param {string} apiKey - Personal API key for BscScan.com.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchBinanceCoinBalance(addresses: string, apiKey: string) {
+function fetchBinanceCoinBalance(addresses: Array<string>, apiKey: string) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -518,11 +523,11 @@ function fetchBinanceCoinBalance(addresses: string, apiKey: string) {
 /**
  * Fetches balance(s) of public Algorand (ALGO) wallet(s).
  *
- * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+ * @param {Array<string>} addresses - Array of public wallet addresses.
  *
  * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
  */
-function fetchAlgorandBalance(addresses: string) {
+function fetchAlgorandBalance(addresses: Array<string>) {
   let totalAmount = 0
   for (let address of addresses) {
     // @ts-ignore
@@ -569,11 +574,11 @@ function fetchAlgorandPlatformBalance(tokenId: string, denominator: number) {
   /**
    * Fetches balance(s) of public Algorand token wallet(s).
    *
-   * @param {string} addresses - String of the public wallet address(es) (comma-delimited if there are multiple addresses).
+   * @param {Array<string>} addresses - Array of public wallet addresses.
    *
    * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
    */
-  return function(addresses: string) {
+  return function(addresses: Array<string>) {
     let totalAmount = 0
     for (let address of addresses) {
       // @ts-ignore
@@ -674,6 +679,37 @@ function fetchMoneroBalance(transactions: string) {
       amount -= txSendFee
     }
 
+    console.log("Amount: " + amount)
+    totalAmount += amount
+  }
+  return totalAmount
+}
+
+// noinspection JSValidateJSDoc
+/**
+ * Fetches balance(s) of public Stellar Lumens (XLM) wallet(s).
+ *
+ * @param {Array<string>} addresses - Array of public wallet addresses.
+ *
+ * @return {number} The total amount of the cryptocurrency stored in the wallet(s).
+ */
+function fetchStellarLumensBalance(addresses: Array<string>) {
+  let totalAmount = 0
+  for (let address of addresses) {
+    // @ts-ignore
+    let addressInfo = utilCleanAddress(address)
+    address = addressInfo["address"]
+    const url = "https://horizon.stellar.org/accounts/" + address
+    // @ts-ignore
+    const responseJson = utilGetResponseJsonFromRequest(url)
+    let amount = 0
+    for (let balance of responseJson.balances) {
+      // console.log(balance)
+      if (balance.asset_type === "native") {
+        // noinspection PointlessArithmeticExpressionJS
+        amount += parseFloat(String(Number(balance.balance))) / 1.0
+      }
+    }
     console.log("Amount: " + amount)
     totalAmount += amount
   }

@@ -49,7 +49,8 @@
     "https://mainnet-api.algonode.cloud/v2/",
     "https://xmrchain.net/api/",
     "https://dora.coz.io/api/v1/neo2/",
-    "https://dora.coz.io/api/v2/neo3/"
+    "https://dora.coz.io/api/v2/neo3/",
+    "https://horizon.stellar.org/"
   ],
   "addOns": {
     "common": {
