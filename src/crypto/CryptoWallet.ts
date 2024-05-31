@@ -338,8 +338,20 @@ function fetchShimmerBalance(addresses: Array<string>) {
     }
     const url = "https://explorer-api.iota.org/stardust/balance/chronicle/shimmer/" + address;
     // const url = "https://explorer-api.shimmer.network/stardust/balance/chronicle/shimmer/" + address;
-    // @ts-ignore
-    let amount = utilGetCryptoAmountFromApi(url, address, "totalBalance", 1000000)
+
+    let amount
+    try {
+      // @ts-ignore
+      amount = utilGetCryptoAmountFromApi(url, address, "totalBalance", 1000000)
+    } catch (err) {
+      // the SMR explorer API does not return any JSON if the address has no balance/activity
+      if (err instanceof SyntaxError && err.message.includes("Unexpected end of JSON input")) {
+        console.warn("SMR explorer API did not return valid JSON. Setting SMR amount to 0.")
+        amount = 0
+      } else {
+        throw err
+      }
+    }
 
     // set amount to zero if it is NaN
     if (Number.isNaN(amount)) {
